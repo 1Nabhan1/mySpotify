@@ -199,6 +199,15 @@ class _HomePageState extends State<HomePage> {
                   }
                 },
               ),
+              IconButton(
+                icon: Icon(
+                  Icons.skip_next,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _playNextTrack(); // Skip to the next track
+                },
+              ),
               StreamBuilder<Duration>(
                 stream: _audioPlayer.positionStream,
                 builder: (context, snapshot) {
@@ -237,6 +246,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
