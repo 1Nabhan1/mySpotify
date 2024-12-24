@@ -4,4 +4,5 @@ final box = GetStorage();
 
 class Constdetails {
   String Token = box.read('token');
+  String refreshToken = box.read('refreshToken');
 }

@@ -2,22 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:spotify_prj/core/constants/ConstDetails.dart';
+import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 import 'package:spotify_prj/presentation/LibraryScreen/Controller/LibraryController.dart';
+import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_model.dart';
+import 'package:spotify_prj/routes/PageList.dart';
 
-class Libraryscreen extends StatelessWidget {
-  const Libraryscreen({super.key});
+import '../song_list_screen/song_list_screen.dart';
+
+class LibraryScreen extends StatelessWidget {
+  const LibraryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Librarycontroller librarycontroller = Get.put(Librarycontroller());
+    LibraryController librarycontroller = Get.put(LibraryController());
     return Scaffold(
       backgroundColor: Colors.black,
-      body: FutureBuilder<List<dynamic>>(
+      body: FutureBuilder<List<Items>>(
         future: librarycontroller.futurePlaylists,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            print(snapshot.error);
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final playlists = snapshot.data!;
@@ -27,16 +33,20 @@ class Libraryscreen extends StatelessWidget {
                   crossAxisCount: 2, mainAxisExtent: 200),
               itemBuilder: (context, index) {
                 final playlist = playlists[index];
-                final name = playlist['name'];
-                final description = playlist['description'] ?? '';
-                final images = playlist['images'] as List<dynamic>;
-                final imageUrl = images.isNotEmpty
-                    ? images[0]['url']
-                    : 'https://www.google.com/imgres?q=song%20app%20icons&imgurl=https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F8014%2F8014930.png&imgrefurl=https%3A%2F%2Fwww.flaticon.com%2Ffree-icon%2Fsong_8014930&docid=jP0G5GkfhFlmXM&tbnid=gGwqZ-r0ne7cEM&vet=12ahUKEwiti4SNgraKAxVn-DgGHfWpJ0sQM3oFCIUBEAA..i&w=512&h=512&hcb=2&ved=2ahUKEwiti4SNgraKAxVn-DgGHfWpJ0sQM3oFCIUBEAA';
+                final name = playlist.name;
+                final description = playlist.description ?? '';
+                final images = playlist.images![0].url;
+                final imageUrl = images != null
+                    ? images
+                    : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS20We-b2vHTRTj7VuyEe7F2jP_JvfnwzHPLg&s';
 
-                return GestureDetector(onTap: () {
-                  print(Constdetails().Token);
-                },
+                return GestureDetector(
+                  onTap: () {
+                    // Apiservices().refreshAccessToken();
+                    Get.toNamed(PageList.songListScreen,
+                        arguments: {'id': '${playlist.id}'});
+                    print(Constdetails().Token);
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -57,7 +67,7 @@ class Libraryscreen extends StatelessWidget {
                                   },
                                 )),
                             Text(
-                              name,
+                              name!,
                               textAlign: TextAlign.center,
                             ),
                             Text(

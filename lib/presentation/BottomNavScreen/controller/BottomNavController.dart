@@ -13,7 +13,7 @@ class Bottomnavcontroller extends GetxController {
   final List<Widget> pages = [
     Homepage(),
     Searchscreen(),
-    Libraryscreen(),
+    LibraryScreen(),
   ];
 
   // Update the selected index
