@@ -45,7 +45,7 @@ class LibraryScreen extends StatelessWidget {
                     // Apiservices().refreshAccessToken();
                     Get.toNamed(PageList.songListScreen,
                         arguments: {'id': '${playlist.id}'});
-                    print(Constdetails().Token);
+                    print(Constdetails().token);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

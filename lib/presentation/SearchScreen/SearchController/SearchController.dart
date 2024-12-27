@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:spotify_prj/core/constants/ConstDetails.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-class Searchcontroller extends GetxController{
+class Searchcontroller extends GetxController {
   List<dynamic> searchResults = [];
   bool isLoading = false;
   String? nowPlayingTitle;
@@ -32,7 +32,9 @@ class Searchcontroller extends GetxController{
       }
     });
   }
-  Future<void> playYouTubeAudio(String videoId, String title, String artist) async {
+
+  Future<void> playYouTubeAudio(
+      String videoId, String title, String artist) async {
     var yt = YoutubeExplode();
     try {
       var manifest = await yt.videos.streamsClient.getManifest(videoId);
@@ -53,6 +55,7 @@ class Searchcontroller extends GetxController{
       yt.close();
     }
   }
+
   Future<void> searchTracks(String query) async {
     if (query.isEmpty) {
       searchResults = [];
@@ -69,14 +72,15 @@ class Searchcontroller extends GetxController{
     final response = await http.get(
       Uri.parse(apiUrl),
       headers: {
-        'Authorization': 'Bearer ${Constdetails().Token}',
+        'Authorization': 'Bearer ${Constdetails().token}',
       },
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       searchResults = data['tracks']['items'];
-      trackLoadingState = List<bool>.filled(searchResults.length, false); // Initialize loading state
+      trackLoadingState = List<bool>.filled(
+          searchResults.length, false); // Initialize loading state
       isLoading = false;
       update();
     } else {
@@ -85,13 +89,16 @@ class Searchcontroller extends GetxController{
       update();
     }
   }
+
   Future<void> playNextTrack() async {
-    if (currentlyPlayingTrackIndex == null) return; // Return early if no track is playing
+    if (currentlyPlayingTrackIndex == null)
+      return; // Return early if no track is playing
 
     final nextIndex = currentlyPlayingTrackIndex! + 1;
     if (nextIndex < searchResults.length) {
       final nextTrack = searchResults[nextIndex];
-      final String query = '${nextTrack['name']} ${nextTrack['artists'][0]['name']}';
+      final String query =
+          '${nextTrack['name']} ${nextTrack['artists'][0]['name']}';
 
       currentlyPlayingTrackIndex = nextIndex;
       update();
@@ -102,6 +109,7 @@ class Searchcontroller extends GetxController{
       print('No more tracks to play.');
     }
   }
+
   Future<void> playTrack(String query, int index) async {
     trackLoadingState[index] = true;
     currentlyPlayingTrackIndex = index;
@@ -129,6 +137,7 @@ class Searchcontroller extends GetxController{
     trackLoadingState[index] = false;
     update();
   }
+
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String minutes = twoDigits(duration.inMinutes);

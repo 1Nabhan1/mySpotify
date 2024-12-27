@@ -5,7 +5,7 @@ import 'package:spotify_prj/presentation/splash_screen/controller/SplashControll
 
 class Splashscreen extends StatelessWidget {
   Splashscreen({super.key});
-  final Splashcontroller splashcontroller = Get.put(Splashcontroller());
+  final SplashController splashcontroller = Get.put(SplashController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
