@@ -36,6 +36,8 @@ class Bottomnavscreen extends StatelessWidget {
             ]),
       ),
       bottomSheet: BottomSheet(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         onClosing: () {},
         builder: (context) {
           return BottomNavWidgets().musicPlayer(audioController);

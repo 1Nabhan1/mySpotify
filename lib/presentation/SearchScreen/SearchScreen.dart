@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spotify_prj/core/controllers/audio_controller.dart';
 
 import 'SearchController/SearchController.dart';
 
@@ -8,6 +9,7 @@ class Searchscreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AudioController audioController = Get.find();
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -72,6 +74,11 @@ class Searchscreen extends StatelessWidget {
                                       final String query =
                                           '${track['name']} ${track['artists'][0]['name']}';
                                       controller.playTrack(query, index);
+                                      audioController.getVideoIdFromSearch(
+                                          query,
+                                          index,
+                                          track['album']['images'][0]['url'],
+                                          track['artists'][0]['name']);
                                     },
                                   );
                                 },
@@ -82,112 +89,6 @@ class Searchscreen extends StatelessWidget {
             );
           },
         ),
-      ),
-      bottomSheet: BottomSheet(
-        onClosing: () {},
-        builder: (context) {
-          return GetBuilder<Searchcontroller>(
-            builder: (controller) {
-              return controller.nowPlayingTitle == null
-                  ? SizedBox()
-                  : Container(
-                      color: Colors.grey[900],
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            controller.nowPlayingTitle!,
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 16.0),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            controller.nowPlayingArtist!,
-                            style: TextStyle(
-                                color: Colors.grey[400], fontSize: 14.0),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  controller.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  if (controller.isPlaying) {
-                                    controller.audioPlayer.pause();
-                                  } else {
-                                    controller.audioPlayer.play();
-                                  }
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.skip_next,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  controller
-                                      .playNextTrack(); // Skip to the next track
-                                },
-                              ),
-                              StreamBuilder<Duration>(
-                                stream: controller.audioPlayer.positionStream,
-                                builder: (context, snapshot) {
-                                  final position =
-                                      snapshot.data ?? Duration.zero;
-                                  final duration =
-                                      controller.audioPlayer.duration ??
-                                          Duration.zero;
-                                  final positionText =
-                                      controller.formatDuration(position);
-                                  final durationText =
-                                      controller.formatDuration(duration);
-
-                                  return Expanded(
-                                    child: Column(
-                                      children: [
-                                        Slider(
-                                          value: position.inSeconds.toDouble(),
-                                          max: duration.inSeconds.toDouble(),
-                                          onChanged: (value) {
-                                            controller.audioPlayer.seek(
-                                                Duration(
-                                                    seconds: value.toInt()));
-                                          },
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(positionText,
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                            Text(durationText,
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-            },
-          );
-        },
       ),
     );
   }

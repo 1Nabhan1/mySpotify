@@ -19,7 +19,7 @@ class AuthController extends GetxController {
 
   Future<void> authenticateWithSpotify() async {
     final String authorizationUrl =
-        'https://accounts.spotify.com/authorize?response_type=code&client_id=$clientId&redirect_uri=$redirectUri&scope=user-read-private user-read-email playlist-read-private user-modify-playback-state user-read-playback-state user-library-read user-read-recently-played user-top-read';
+        'https://accounts.spotify.com/authorize?response_type=code&client_id=$clientId&redirect_uri=$redirectUri&scope=user-read-private user-read-email playlist-read-private user-modify-playback-state user-read-playback-state user-library-read user-read-recently-played user-top-read user-library-modify playlist-modify-public playlist-modify-private';
     Get.to(Spotifyloginscreen(
       authorizationUrl: authorizationUrl,
       redirectUri: redirectUri,

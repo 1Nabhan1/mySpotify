@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:spotify_prj/core/constants/ConstDetails.dart';
 import 'package:spotify_prj/core/controllers/audio_controller.dart';
 import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 import 'package:spotify_prj/main.dart';
@@ -45,10 +46,12 @@ class HomeWidgets {
                                 child: Obx(
                                   () => Image.network(
                                     controller.userData['images'] != null &&
-                                            controller.userData['images'] != []
+                                            controller.userData['images']
+                                                    .toString() !=
+                                                '[]'
                                         ? controller.userData['images'][0]
                                             ['url']
-                                        : 'https://i.scdn.co/image/ab6761610000e5eba1b1a48354e9a91fef58f651',
+                                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTc9u0ivNIe4qiLFg2OwPvX-YFTCo8K-AoLhg&s',
                                     errorBuilder: (context, error, stackTrace) {
                                       return Icon(CupertinoIcons.person);
                                     },
@@ -88,6 +91,7 @@ class HomeWidgets {
                 style: TextStyle(color: Colors.grey),
               ),
               onTap: () {
+                box.erase();
                 Get.offAllNamed(PageList.authScreen);
               },
             ),
@@ -99,14 +103,13 @@ class HomeWidgets {
 
   Widget customAppbar({required HomeController controller}) {
     return Container(
-      height: double.infinity,
       decoration: BoxDecoration(
           gradient: LinearGradient(
               colors: [Colors.grey.shade900, Colors.black],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter)),
       child: Padding(
-          padding: EdgeInsets.only(top: 30.0.h, left: 10),
+          padding: EdgeInsets.only(top: 30.0.h, left: 10, bottom: 10.h),
           child: Row(
             children: [
               GestureDetector(
@@ -120,9 +123,10 @@ class HomeWidgets {
                       child: Obx(
                         () => Image.network(
                           controller.userData['images'] != null &&
-                                  controller.userData['images'] != []
+                                  controller.userData['images'].toString() !=
+                                      '[]'
                               ? controller.userData['images'][0]['url']
-                              : 'https://i.scdn.co/image/ab6761610000e5eba1b1a48354e9a91fef58f651',
+                              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTc9u0ivNIe4qiLFg2OwPvX-YFTCo8K-AoLhg&s',
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(CupertinoIcons.person);
                           },
@@ -212,20 +216,15 @@ class HomeWidgets {
                     final items = p1.items![index];
                     return GestureDetector(
                       onTap: () {
-                        // audioController.playTrack(
-                        //   items.track!.album!.name!,
-                        //   index,
-                        //   items.track!.album!.images![0]!.url!,
-                        // );
                         audioController.getVideoIdFromSearch(
-                            items.track!.album!.name!,
+                            items.track!.name!,
                             index,
                             items.track!.album!.images![0]!.url!,
                             items.track!.album!.artists![0].name!);
                       },
                       child: CustomContainer(
                           imgUrl: items.track!.album!.images![0].url!,
-                          txt: items.track!.album!.name!),
+                          txt: items.track!.name!),
                     );
                   },
                 ),
@@ -238,6 +237,7 @@ class HomeWidgets {
   }
 
   Widget topTrack({required HomeController controller}) {
+    AudioController audioController = Get.find();
     return CustomFutureBuilder<TopTracks?>(
       future: controller.futureTopTracks,
       onSuccess: (p0, p1) {
@@ -255,9 +255,17 @@ class HomeWidgets {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final items = p1.items![index];
-                  return CustomContainer(
-                      imgUrl: items.album!.images![0].url!,
-                      txt: items.album!.name!);
+                  return GestureDetector(
+                    onTap: () {
+                      audioController.getVideoIdFromSearch(
+                          items.name!,
+                          index,
+                          items.album!.images![0]!.url!,
+                          items.album!.artists![0].name!);
+                    },
+                    child: CustomContainer(
+                        imgUrl: items.album!.images![0].url!, txt: items.name!),
+                  );
                 },
               ),
             )
@@ -276,7 +284,7 @@ class HomeWidgets {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HomeWidgets().customText(txt: 'New Releases'),
+              HomeWidgets().customText(txt: 'New Released Albums'),
               SizedBox(
                 height: 200.h,
                 child: ListView.builder(
@@ -300,36 +308,36 @@ class HomeWidgets {
     );
   }
 
-  Widget albums({required HomeController controller}) {
-    return CustomFutureBuilder<AlbumList?>(
-      future: controller.futureAlbumList,
-      onSuccess: (p0, p1) {
-        return SizedBox(
-          height: 230.h,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeWidgets().customText(txt: 'Albums'),
-              SizedBox(
-                height: 200.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: p1!.albums!.length,
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final items = p1.albums![index];
-                    return CustomContainer(
-                      imgUrl: items.images![0].url!,
-                      txt: items.name!,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // Widget albums({required HomeController controller}) {
+  //   return CustomFutureBuilder<AlbumList?>(
+  //     future: controller.futureAlbumList,
+  //     onSuccess: (p0, p1) {
+  //       return SizedBox(
+  //         height: 230.h,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             HomeWidgets().customText(txt: 'Albums'),
+  //             SizedBox(
+  //               height: 200.h,
+  //               child: ListView.builder(
+  //                 scrollDirection: Axis.horizontal,
+  //                 itemCount: p1!.albums!.length,
+  //                 physics: BouncingScrollPhysics(),
+  //                 shrinkWrap: true,
+  //                 itemBuilder: (context, index) {
+  //                   final items = p1.albums![index];
+  //                   return CustomContainer(
+  //                     imgUrl: items.images![0].url!,
+  //                     txt: items.name!,
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

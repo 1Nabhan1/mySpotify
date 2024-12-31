@@ -114,7 +114,7 @@ class ApiServices {
     final clientId = Constdetails().clientId;
     final clientSecret = Constdetails().clientSecret;
     final credentials = base64Encode(utf8.encode('$clientId:$clientSecret'));
-    String refreshToken = box.read('refreshToken');
+    String refreshToken = box.read('refreshToken') ?? '';
 
     try {
       final response = await ApiMethods().post(
@@ -130,6 +130,33 @@ class ApiServices {
     }
     return null;
   }
+
+// // Search for similar tracks using the artist and track name
+//   Future<List<Map<String, dynamic>>?> searchSimilarTracks(
+//       String trackName, String artist) async {
+//     final token = Constdetails().token;
+//     try {
+//       final response = await ApiMethods().get(
+//           url:
+//               'https://api.spotify.com/v1/search?q=$trackName+artist:$artist&type=track&limit=10',
+//           headers: {'Authorization': 'Bearer $token'});
+//       final data = jsonDecode(response);
+//       List<Map<String, dynamic>> tracks = [];
+//       for (var track in data['tracks']['items']) {
+//         tracks.add({
+//           'name': track['name'],
+//           'artist': track['artists'][0]['name'],
+//           'id': track['id'],
+//           'uri': track['uri'],
+//         });
+//       }
+//       return tracks;
+//     } catch (e) {
+//       print(e);
+//     }
+//
+//     return null;
+//   }
 
   Future<PlaylistTrackResponse?> fetchSongList(String id) async {
     final token = Constdetails().token;

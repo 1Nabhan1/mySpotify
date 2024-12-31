@@ -136,37 +136,6 @@ class AudioController extends GetxController {
     }
   }
 
-  // Future<void> playYouTubeAudio(
-  //     String videoId, String title, String artist, String img) async {
-  //   final yt = YoutubeExplode();
-  //   try {
-  //     // Fetch the audio stream manifest
-  //     final manifest = await yt.videos.streamsClient.getManifest(videoId);
-  //     final audioStream = manifest.audioOnly.withHighestBitrate();
-  //     if (audioStream != null) {
-  //       final audioUrl = audioStream.url.toString();
-  //       await audioPlayer.setUrl(audioUrl);
-  //       audioPlayer.play();
-  //       nowPlayingTitle.value = title;
-  //       nowPlayingArtist.value = artist;
-  //       isPlaying.value = true;
-  //       imgPly.value = img;
-  //       // Listen for playback completion
-  //       audioPlayer.playerStateStream.listen((state) {
-  //         if (state.processingState == ProcessingState.completed) {
-  //           isPlaying.value = false;
-  //         }
-  //       });
-  //     } else {
-  //       print('No audio stream found for this video.');
-  //     }
-  //   } catch (e) {
-  //     print('Error playing YouTube audio: $e');
-  //   } finally {
-  //     yt.close();
-  //   }
-  // }
-
   double getLuminance(Color color) {
     final r = color.red / 255.0;
     final g = color.green / 255.0;

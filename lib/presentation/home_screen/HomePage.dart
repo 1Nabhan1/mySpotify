@@ -23,14 +23,12 @@ class Homepage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 10.h,
-              ),
+              // HomeWidgets().customAppbar(controller: controller),
               HomeWidgets().categorised(controller: controller),
               HomeWidgets().recentSection(controller: controller),
               HomeWidgets().topTrack(controller: controller),
               HomeWidgets().newRelease(controller: controller),
-              HomeWidgets().albums(controller: controller),
+              // HomeWidgets().albums(controller: controller),
             ],
           ),
         ));
