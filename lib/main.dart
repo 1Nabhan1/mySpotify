@@ -16,7 +16,7 @@ import 'Spotify.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final apiService = Apiservices();
+  final apiService = ApiServices();
   apiService.startTokenRefreshTimer();
   await dotenv.load();
   await GetStorage.init();

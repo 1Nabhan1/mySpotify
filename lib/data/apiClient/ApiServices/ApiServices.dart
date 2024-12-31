@@ -10,6 +10,7 @@ import 'package:spotify_prj/core/constants/ConstDetails.dart';
 import 'package:spotify_prj/core/constants/api_methods.dart';
 import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_model.dart'
     as libry;
+import 'package:spotify_prj/presentation/home_screen/controller/home_controller.dart';
 import 'package:spotify_prj/presentation/home_screen/models/new_releases.dart';
 import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model.dart';
 import 'package:spotify_prj/routes/PageList.dart';
@@ -18,8 +19,9 @@ import '../../../presentation/home_screen/models/album_model.dart';
 import '../../../presentation/home_screen/models/category_model.dart';
 import '../../../presentation/home_screen/models/recent_model.dart';
 import '../../../presentation/home_screen/models/top_tracks_model.dart';
+import '../../../presentation/home_screen/models/user_details_model.dart';
 
-class Apiservices {
+class ApiServices {
   final box = GetStorage();
 
   Future<void> getAccessToken(String authorizationCode, String redirectUri,
@@ -54,27 +56,50 @@ class Apiservices {
     }
   }
 
+  // Future<userDetails?> fetchUserDetail() async {
+  //   String token = Constdetails().token;
+  //   final url = 'https://api.spotify.com/v1/me';
+  //   try {
+  //     final data = await ApiMethods()
+  //         .get(url: url, headers: {'Authorization': 'Bearer $token'});
+  //     return userDetails.fromJson(jsonDecode(data));
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   return null;
+  // }
+
+  Future<Map<String, dynamic>> userData() async {
+    String token = Constdetails().token;
+    final url = 'https://api.spotify.com/v1/me';
+    try {
+      final data = await ApiMethods()
+          .get(url: url, headers: {'Authorization': 'Bearer $token'});
+
+      return jsonDecode(data);
+    } catch (e) {
+      print(e);
+    }
+    return {};
+  }
+
   Future<List<libry.Items>> fetchPlaylists() async {
     final url = 'https://api.spotify.com/v1/me/playlists';
     final token = Constdetails().token;
-
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body) as Map<String, dynamic>;
+    try {
+      final response = await ApiMethods().get(
+        url: url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      final data = jsonDecode(response) as Map<String, dynamic>;
       final items = data['items'] as List<dynamic>;
       return items
-          .map((item) => libry.Items.fromJson(item as Map<String, dynamic>))
+          .map((datas) => libry.Items.fromJson(datas as Map<String, dynamic>))
           .toList();
-    } else {
-      print(response.body);
-      throw Exception('Failed to load playlists');
+    } catch (e) {
+      print(e);
     }
+    return [];
   }
 
   void startTokenRefreshTimer() {
@@ -85,46 +110,37 @@ class Apiservices {
   }
 
   Future<String?> refreshAccessToken() async {
+    final uri = 'https://accounts.spotify.com/api/token';
     final clientId = Constdetails().clientId;
     final clientSecret = Constdetails().clientSecret;
     final credentials = base64Encode(utf8.encode('$clientId:$clientSecret'));
     String refreshToken = box.read('refreshToken');
-    final response = await http.post(
-      Uri.parse('https://accounts.spotify.com/api/token'),
-      headers: {
-        'Authorization': 'Basic $credentials',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-      },
-    );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    try {
+      final response = await ApiMethods().post(
+          uri: uri,
+          headers: {'Authorization': 'Basic $credentials'},
+          body: {'grant_type': 'refresh_token', 'refresh_token': refreshToken});
+      final data = jsonDecode(response);
       print(data);
       box.write('token', data['access_token']);
       return data['access_token'];
-    } else {
-      print('Error refreshing token: ${response.body}');
-      return null;
+    } catch (e) {
+      print(e);
     }
+    return null;
   }
 
   Future<PlaylistTrackResponse?> fetchSongList(String id) async {
     final token = Constdetails().token;
 
     final uri = 'https://api.spotify.com/v1/playlists/${id}/tracks';
-    final response = await http
-        .get(Uri.parse(uri), headers: {'Authorization': 'Bearer $token'});
-    if (response.statusCode == 200) {
-      print(response.body);
-      final data = jsonDecode(response.body);
-      return PlaylistTrackResponse.fromJson(data);
-    } else {
-      print('status code ${response.statusCode}');
-      print(response.body);
+    try {
+      final data = await ApiMethods()
+          .get(url: uri, headers: {'Authorization': 'Bearer $token'});
+      return PlaylistTrackResponse.fromJson(jsonDecode(data));
+    } catch (e) {
+      print(e);
     }
     return null;
   }
@@ -132,17 +148,12 @@ class Apiservices {
   Future<recent_play?> fetchRecentList() async {
     final token = Constdetails().token;
     String url = 'https://api.spotify.com/v1/me/player/recently-played';
-
-    final response = await http
-        .get(Uri.parse(url), headers: {'Authorization': 'Bearer $token'});
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final items = data['items'] as List<dynamic>;
-      print(items);
-      return recent_play.fromJson(data);
-    } else {
-      print(response.statusCode);
-      print(response.body);
+    try {
+      final data = await ApiMethods()
+          .get(url: url, headers: {'Authorization': 'Bearer $token'});
+      return recent_play.fromJson(jsonDecode(data));
+    } catch (e) {
+      print(e);
     }
     return null;
   }
@@ -196,6 +207,4 @@ class Apiservices {
     }
     return null;
   }
-
-
 }

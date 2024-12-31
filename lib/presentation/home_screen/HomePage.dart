@@ -13,10 +13,12 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
     return Scaffold(
+        key: controller.scaffoldKey,
+        drawer: HomeWidgets().customDrawer(controller: controller),
         backgroundColor: Colors.black,
         appBar: PreferredSize(
             preferredSize: Size(double.infinity, 50.h),
-            child: HomeWidgets().customAppbar()),
+            child: HomeWidgets().customAppbar(controller: controller)),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

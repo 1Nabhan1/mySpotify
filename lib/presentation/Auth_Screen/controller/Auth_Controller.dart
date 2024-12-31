@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +15,8 @@ class AuthController extends GetxController {
   final String clientSecret = Constdetails().clientSecret;
   final String redirectUri = 'myspotify://callback';
   final GetStorage box = GetStorage();
+  late InAppWebViewController webViewController;
+
   Future<void> authenticateWithSpotify() async {
     final String authorizationUrl =
         'https://accounts.spotify.com/authorize?response_type=code&client_id=$clientId&redirect_uri=$redirectUri&scope=user-read-private user-read-email playlist-read-private user-modify-playback-state user-read-playback-state user-library-read user-read-recently-played user-top-read';
@@ -20,8 +24,12 @@ class AuthController extends GetxController {
       authorizationUrl: authorizationUrl,
       redirectUri: redirectUri,
       onCodeReceived: (authorizationCode) {
-        Apiservices().getAccessToken(
+        ApiServices().getAccessToken(
             authorizationCode, redirectUri, clientId, clientSecret);
+        webViewController.clearSslPreferences();
+        webViewController.clearHistory();
+        webViewController.clearFormData();
+        webViewController.clearCache();
       },
     ));
   }

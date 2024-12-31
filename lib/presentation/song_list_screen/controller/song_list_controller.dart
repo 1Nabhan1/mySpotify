@@ -9,6 +9,6 @@ class SongListController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    songList = Apiservices().fetchSongList(arguments['id']);
+    songList = ApiServices().fetchSongList(arguments['id']);
   }
 }

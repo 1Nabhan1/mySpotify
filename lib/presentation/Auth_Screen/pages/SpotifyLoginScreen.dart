@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:spotify_prj/presentation/Auth_Screen/controller/Auth_Controller.dart';
 
 class Spotifyloginscreen extends StatelessWidget {
   Spotifyloginscreen(
@@ -10,15 +13,16 @@ class Spotifyloginscreen extends StatelessWidget {
   final String authorizationUrl;
   final String redirectUri;
   final Function(String) onCodeReceived;
-  late InAppWebViewController webViewController;
+
   @override
   Widget build(BuildContext context) {
+    AuthController authController = Get.find();
     return Scaffold(
       backgroundColor: Colors.black,
       body: InAppWebView(
         initialUrlRequest: URLRequest(url: WebUri(authorizationUrl)),
         onWebViewCreated: (controller) {
-          webViewController = controller;
+          authController.webViewController = controller;
         },
         onLoadStart: (controller, url) {
           if (url.toString().startsWith(redirectUri)) {

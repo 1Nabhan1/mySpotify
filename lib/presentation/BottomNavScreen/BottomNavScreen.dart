@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:spotify_prj/presentation/BottomNavScreen/controller/BottomNavController.dart';
+import 'package:spotify_prj/presentation/BottomNavScreen/widgets/BottomNav_widgets.dart';
 import 'package:spotify_prj/presentation/LibraryScreen/LibraryScreen.dart';
 import 'package:spotify_prj/presentation/home_screen/HomePage.dart';
 
+import '../../core/controllers/audio_controller.dart';
 import '../SearchScreen/SearchScreen.dart';
 
 class Bottomnavscreen extends StatelessWidget {
@@ -13,6 +15,7 @@ class Bottomnavscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Bottomnavcontroller bottomnavcontroller = Get.put(Bottomnavcontroller());
+    AudioController audioController = Get.find();
     return Scaffold(
       backgroundColor: Colors.black,
       body: Obx(() =>
@@ -31,6 +34,12 @@ class Bottomnavscreen extends StatelessWidget {
               BottomNavigationBarItem(
                   icon: Icon(Icons.my_library_music_outlined), label: 'Library')
             ]),
+      ),
+      bottomSheet: BottomSheet(
+        onClosing: () {},
+        builder: (context) {
+          return BottomNavWidgets().musicPlayer(audioController);
+        },
       ),
     );
   }

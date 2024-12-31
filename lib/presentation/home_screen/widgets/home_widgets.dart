@@ -8,6 +8,7 @@ import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 import 'package:spotify_prj/main.dart';
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_container.dart';
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_future_builder.dart';
+import 'package:spotify_prj/routes/PageList.dart';
 
 import '../controller/home_controller.dart';
 import '../models/album_model.dart';
@@ -16,7 +17,87 @@ import '../models/recent_model.dart';
 import '../models/top_tracks_model.dart';
 
 class HomeWidgets {
-  Widget customAppbar() {
+  Widget customDrawer({required HomeController controller}) {
+    return Drawer(
+      backgroundColor: Colors.grey.shade900,
+      child: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blueGrey.shade900,
+                        borderRadius: BorderRadius.circular(20.r)),
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Obx(
+                        () => Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20.r),
+                                child: Obx(
+                                  () => Image.network(
+                                    controller.userData['images'] != null &&
+                                            controller.userData['images'] != []
+                                        ? controller.userData['images'][0]
+                                            ['url']
+                                        : 'https://i.scdn.co/image/ab6761610000e5eba1b1a48354e9a91fef58f651',
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(CupertinoIcons.person);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20.h,
+                            ),
+                            Text(
+                              controller.userData['display_name'] ?? '',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                            Text(
+                              controller.userData['email'] ?? '',
+                              style: TextStyle(color: Colors.grey),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.logout,
+                color: Colors.grey,
+              ),
+              title: Text(
+                'Logout',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onTap: () {
+                Get.offAllNamed(PageList.authScreen);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget customAppbar({required HomeController controller}) {
     return Container(
       height: double.infinity,
       decoration: BoxDecoration(
@@ -25,18 +106,32 @@ class HomeWidgets {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter)),
       child: Padding(
-        padding: EdgeInsets.only(top: 30.0.h, left: 10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              child: Text(
-                'L',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
-        ),
-      ),
+          padding: EdgeInsets.only(top: 30.0.h, left: 10),
+          child: Row(
+            children: [
+              GestureDetector(
+                  onTap: () {
+                    controller.scaffoldKey.currentState?.openDrawer();
+                    // print(controller.userData['images'][0]['url']);
+                  },
+                  child: CircleAvatar(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Obx(
+                        () => Image.network(
+                          controller.userData['images'] != null &&
+                                  controller.userData['images'] != []
+                              ? controller.userData['images'][0]['url']
+                              : 'https://i.scdn.co/image/ab6761610000e5eba1b1a48354e9a91fef58f651',
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(CupertinoIcons.person);
+                          },
+                        ),
+                      ),
+                    ),
+                  )),
+            ],
+          )),
     );
   }
 
@@ -117,8 +212,16 @@ class HomeWidgets {
                     final items = p1.items![index];
                     return GestureDetector(
                       onTap: () {
-                        audioController.playTrack(
-                            items.track!.album!.name!, index);
+                        // audioController.playTrack(
+                        //   items.track!.album!.name!,
+                        //   index,
+                        //   items.track!.album!.images![0]!.url!,
+                        // );
+                        audioController.getVideoIdFromSearch(
+                            items.track!.album!.name!,
+                            index,
+                            items.track!.album!.images![0]!.url!,
+                            items.track!.album!.artists![0].name!);
                       },
                       child: CustomContainer(
                           imgUrl: items.track!.album!.images![0].url!,

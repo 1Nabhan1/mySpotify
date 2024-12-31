@@ -43,7 +43,8 @@ dependencies:
   get_storage:
   flutter_screenutil:
   flutter_dotenv:
-  shimmer: 
+  shimmer:
+  palette_generator:
 
 dev_dependencies:
   flutter_test:

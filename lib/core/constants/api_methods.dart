@@ -15,4 +15,20 @@ class ApiMethods {
       print('  ${response.body}');
     }
   }
+
+  Future<dynamic> post(
+      {required String uri,
+      required Map<String, String> headers,
+      required Object? body}) async {
+    final response =
+        await http.post(Uri.parse(uri), headers: headers, body: body);
+    if (response.statusCode == 200) {
+      print(response.body);
+      final data = response.body;
+      return data;
+    } else {
+      print('Error Occurred status code: ${response.statusCode}');
+      print('  ${response.body}');
+    }
+  }
 }

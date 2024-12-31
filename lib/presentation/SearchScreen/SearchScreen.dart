@@ -83,102 +83,110 @@ class Searchscreen extends StatelessWidget {
           },
         ),
       ),
-      floatingActionButton: GetBuilder<Searchcontroller>(
-        builder: (controller) {
-          return controller.nowPlayingTitle == null
-              ? SizedBox()
-              : Container(
-                  color: Colors.grey[900],
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        controller.nowPlayingTitle!,
-                        style: TextStyle(color: Colors.white, fontSize: 16.0),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        controller.nowPlayingArtist!,
-                        style:
-                            TextStyle(color: Colors.grey[400], fontSize: 14.0),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+      bottomSheet: BottomSheet(
+        onClosing: () {},
+        builder: (context) {
+          return GetBuilder<Searchcontroller>(
+            builder: (controller) {
+              return controller.nowPlayingTitle == null
+                  ? SizedBox()
+                  : Container(
+                      color: Colors.grey[900],
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: Icon(
-                              controller.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              if (controller.isPlaying) {
-                                controller.audioPlayer.pause();
-                              } else {
-                                controller.audioPlayer.play();
-                              }
-                            },
+                          Text(
+                            controller.nowPlayingTitle!,
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.skip_next,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              controller
-                                  .playNextTrack(); // Skip to the next track
-                            },
+                          Text(
+                            controller.nowPlayingArtist!,
+                            style: TextStyle(
+                                color: Colors.grey[400], fontSize: 14.0),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          StreamBuilder<Duration>(
-                            stream: controller.audioPlayer.positionStream,
-                            builder: (context, snapshot) {
-                              final position = snapshot.data ?? Duration.zero;
-                              final duration =
-                                  controller.audioPlayer.duration ??
-                                      Duration.zero;
-                              final positionText =
-                                  controller.formatDuration(position);
-                              final durationText =
-                                  controller.formatDuration(duration);
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  controller.isPlaying
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  if (controller.isPlaying) {
+                                    controller.audioPlayer.pause();
+                                  } else {
+                                    controller.audioPlayer.play();
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.skip_next,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  controller
+                                      .playNextTrack(); // Skip to the next track
+                                },
+                              ),
+                              StreamBuilder<Duration>(
+                                stream: controller.audioPlayer.positionStream,
+                                builder: (context, snapshot) {
+                                  final position =
+                                      snapshot.data ?? Duration.zero;
+                                  final duration =
+                                      controller.audioPlayer.duration ??
+                                          Duration.zero;
+                                  final positionText =
+                                      controller.formatDuration(position);
+                                  final durationText =
+                                      controller.formatDuration(duration);
 
-                              return Expanded(
-                                child: Column(
-                                  children: [
-                                    Slider(
-                                      value: position.inSeconds.toDouble(),
-                                      max: duration.inSeconds.toDouble(),
-                                      onChanged: (value) {
-                                        controller.audioPlayer.seek(
-                                            Duration(seconds: value.toInt()));
-                                      },
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                  return Expanded(
+                                    child: Column(
                                       children: [
-                                        Text(positionText,
-                                            style:
-                                                TextStyle(color: Colors.white)),
-                                        Text(durationText,
-                                            style:
-                                                TextStyle(color: Colors.white)),
+                                        Slider(
+                                          value: position.inSeconds.toDouble(),
+                                          max: duration.inSeconds.toDouble(),
+                                          onChanged: (value) {
+                                            controller.audioPlayer.seek(
+                                                Duration(
+                                                    seconds: value.toInt()));
+                                          },
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(positionText,
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            Text(durationText,
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                          ],
+                                        ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                );
+                    );
+            },
+          );
         },
       ),
     );

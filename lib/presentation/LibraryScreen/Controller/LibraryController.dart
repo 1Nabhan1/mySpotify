@@ -8,6 +8,6 @@ class LibraryController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    futurePlaylists = Apiservices().fetchPlaylists();
+    futurePlaylists = ApiServices().fetchPlaylists();
   }
 }
