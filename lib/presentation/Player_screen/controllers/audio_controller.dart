@@ -25,9 +25,10 @@ class AudioController extends GetxController {
   RxDouble totalDuration = 0.0.obs;
   HeadlessInAppWebView? headlessWebView;
   List<dynamic> queueSongs = [].obs;
-
+  RxBool playerLoading = false.obs;
   Future<void> playYouTubeAudio(String videoId, String title, String artist,
       String img, int currentIndex) async {
+    playerLoading.value = true;
     await headlessWebView?.dispose();
     // Create a HeadlessInAppWebView instance
     headlessWebView = HeadlessInAppWebView(
@@ -103,11 +104,12 @@ class AudioController extends GetxController {
           video.muted = false; // Ensure audio is enabled
         } else {
           window.flutter_inappwebview.callHandler('audioPlaying', false);
-        }
+        } 
       """);
         nowPlayingTitle.value = title;
         nowPlayingArtist.value = artist;
         imgPly.value = img;
+        playerLoading.value = false;
       },
     );
 
@@ -212,6 +214,7 @@ class AudioController extends GetxController {
   }
 
   Future<void> playNextTrack(int currentIndex) async {
+    playerLoading.value = true;
     await headlessWebView?.dispose().then(
       (value) async {
         print('Next Track');
@@ -228,6 +231,7 @@ class AudioController extends GetxController {
   }
 
   Future<void> playPreviousTrack(int currentIndex) async {
+    playerLoading.value = true;
     await headlessWebView?.dispose().then(
       (value) async {
         print('Previous Track');

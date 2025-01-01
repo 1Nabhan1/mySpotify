@@ -11,12 +11,18 @@ class PlayerWidgets {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 35.0.w, vertical: 30.h),
-          child: Container(
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(20.r)),
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.r),
-                  child: Image.network(audioController.imgPly.value))),
+          child: SizedBox(
+            width: double.infinity,
+            height: 280.h,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: Image.network(
+                  audioController.imgPly.value,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(child: Icon(Icons.error));
+                  },
+                )),
+          ),
         ),
         Padding(
           padding: EdgeInsets.only(left: 35.0.w),
@@ -117,39 +123,52 @@ class PlayerWidgets {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: () {
-                audioController.playPreviousTrack(
-                    audioController.currentlyPlayingTrackIndex.value);
-              },
+              onTap: audioController.playerLoading.value
+                  ? null
+                  : () {
+                      audioController.playPreviousTrack(
+                          audioController.currentlyPlayingTrackIndex.value);
+                    },
               child: Icon(
                 CupertinoIcons.backward_end,
                 color: audioController.textColor.value,
               ),
             ),
             GestureDetector(
-              onTap: () {
-                if (audioController.isPlaying.value) {
-                  audioController.togglePlayPause();
-                  audioController.isPlaying.value = false;
-                } else {
-                  audioController.togglePlayPause();
-                  audioController.isPlaying.value = true;
-                }
-              },
+              onTap: audioController.playerLoading.value
+                  ? null
+                  : () {
+                      if (audioController.isPlaying.value) {
+                        audioController.togglePlayPause();
+                        audioController.isPlaying.value = false;
+                      } else {
+                        audioController.togglePlayPause();
+                        audioController.isPlaying.value = true;
+                      }
+                    },
               child: CircleAvatar(
-                backgroundColor:
-                    audioController.textColor.value.withOpacity(.2),
+                backgroundColor: audioController.textColor.value,
                 radius: 30.r,
-                child: Icon(audioController.isPlaying.value
-                    ? CupertinoIcons.pause
-                    : CupertinoIcons.play),
+                child: audioController.playerLoading.value
+                    ? CircularProgressIndicator(
+                        strokeWidth: 1,
+                        color: audioController.dominantColor.value,
+                      )
+                    : Icon(
+                        audioController.isPlaying.value
+                            ? CupertinoIcons.pause
+                            : CupertinoIcons.play,
+                        color: audioController.dominantColor.value,
+                      ),
               ),
             ),
             GestureDetector(
-              onTap: () {
-                audioController.playNextTrack(
-                    audioController.currentlyPlayingTrackIndex.value);
-              },
+              onTap: audioController.playerLoading.value
+                  ? null
+                  : () {
+                      audioController.playNextTrack(
+                          audioController.currentlyPlayingTrackIndex.value);
+                    },
               child: Icon(
                 CupertinoIcons.forward_end,
                 color: audioController.textColor.value,
