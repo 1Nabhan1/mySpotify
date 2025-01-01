@@ -4,13 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:spotify_prj/core/constants/ConstDetails.dart';
-import 'package:spotify_prj/core/controllers/audio_controller.dart';
 import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 import 'package:spotify_prj/main.dart';
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_container.dart';
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_future_builder.dart';
 import 'package:spotify_prj/routes/PageList.dart';
 
+import '../../Player_screen/controllers/audio_controller.dart';
 import '../controller/home_controller.dart';
 import '../models/album_model.dart';
 import '../models/category_model.dart' as cat;
@@ -214,13 +214,22 @@ class HomeWidgets {
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final items = p1.items![index];
+
                     return GestureDetector(
                       onTap: () {
-                        audioController.getVideoIdFromSearch(
-                            items.track!.name!,
-                            index,
-                            items.track!.album!.images![0]!.url!,
-                            items.track!.album!.artists![0].name!);
+                        // Clear the existing queue if needed
+                        audioController.queueSongs.clear();
+                        // Add the selected song and all subsequent songs to the queue
+                        for (int i = index; i < p1.items!.length; i++) {
+                          final currentItem = p1.items![i];
+                          audioController.addToQueue(
+                            currentItem.track!.name!,
+                            currentItem.track!.album!.artists![0].name!,
+                            currentItem.track!.album!.images![0].url!,
+                          );
+                        }
+                        // Start playback with the first song in the updated queue
+                        audioController.getVideoIdFromSearch(0);
                       },
                       child: CustomContainer(
                           imgUrl: items.track!.album!.images![0].url!,
@@ -257,11 +266,11 @@ class HomeWidgets {
                   final items = p1.items![index];
                   return GestureDetector(
                     onTap: () {
-                      audioController.getVideoIdFromSearch(
-                          items.name!,
-                          index,
-                          items.album!.images![0]!.url!,
-                          items.album!.artists![0].name!);
+                      // audioController.getVideoIdFromSearch(
+                      //     items.name!,
+                      //     index,
+                      //     items.album!.images![0]!.url!,
+                      //     items.album!.artists![0].name!);
                     },
                     child: CustomContainer(
                         imgUrl: items.album!.images![0].url!, txt: items.name!),

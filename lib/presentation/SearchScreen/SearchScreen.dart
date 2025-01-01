@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spotify_prj/core/controllers/audio_controller.dart';
 
+import '../Player_screen/controllers/audio_controller.dart';
 import 'SearchController/SearchController.dart';
 
 class Searchscreen extends StatelessWidget {
@@ -71,14 +71,14 @@ class Searchscreen extends StatelessWidget {
                                             color: Colors.green)
                                         : null,
                                     onTap: () {
-                                      final String query =
-                                          '${track['name']} ${track['artists'][0]['name']}';
-                                      controller.playTrack(query, index);
-                                      audioController.getVideoIdFromSearch(
-                                          query,
-                                          index,
-                                          track['album']['images'][0]['url'],
-                                          track['artists'][0]['name']);
+                                      // final String query =
+                                      //     '${track['name']} ${track['artists'][0]['name']}';
+                                      // controller.playTrack(query, index);
+                                      // audioController.getVideoIdFromSearch(
+                                      //     query,
+                                      //     index,
+                                      //     track['album']['images'][0]['url'],
+                                      //     track['artists'][0]['name']);
                                     },
                                   );
                                 },

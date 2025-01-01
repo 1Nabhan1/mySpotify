@@ -7,7 +7,7 @@ import 'package:spotify_prj/presentation/BottomNavScreen/widgets/BottomNav_widge
 import 'package:spotify_prj/presentation/LibraryScreen/LibraryScreen.dart';
 import 'package:spotify_prj/presentation/home_screen/HomePage.dart';
 
-import '../../core/controllers/audio_controller.dart';
+import '../Player_screen/controllers/audio_controller.dart';
 import '../SearchScreen/SearchScreen.dart';
 
 class Bottomnavscreen extends StatelessWidget {

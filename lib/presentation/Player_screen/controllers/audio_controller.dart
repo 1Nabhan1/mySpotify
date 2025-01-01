@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +24,10 @@ class AudioController extends GetxController {
   RxDouble currentPlayingTime = 0.0.obs;
   RxDouble totalDuration = 0.0.obs;
   HeadlessInAppWebView? headlessWebView;
+  List<dynamic> queueSongs = [].obs;
 
-  Future<void> playYouTubeAudio(
-      String videoId, String title, String artist, String img) async {
+  Future<void> playYouTubeAudio(String videoId, String title, String artist,
+      String img, int currentIndex) async {
     await headlessWebView?.dispose();
     // Create a HeadlessInAppWebView instance
     headlessWebView = HeadlessInAppWebView(
@@ -60,8 +62,16 @@ class AudioController extends GetxController {
               final currentTime = args[0];
               final duration = args[1];
               print("Current Time: $currentTime, Total Duration: $duration");
-              currentPlayingTime.value = currentTime;
-              totalDuration.value = duration;
+              currentPlayingTime.value = currentTime ?? 0.0;
+              totalDuration.value = duration ?? 0.0;
+              if (totalDuration.value - currentPlayingTime.value < 15) {
+                headlessWebView?.dispose().then(
+                  (value) {
+                    playNextTrack(currentIndex);
+                  },
+                );
+                // Play the next song
+              }
             }
           },
         );
@@ -109,6 +119,16 @@ class AudioController extends GetxController {
       print("Error starting Headless WebView: $e");
       isPlaying.value = false; // Reset to false if there's an error
     }
+  }
+
+  // Add songs to the queue
+  void addToQueue(String songName, String artist, String imgUrl) {
+    queueSongs.add({
+      'songName': songName,
+      'artist': artist,
+      'imgUrl': imgUrl,
+    });
+    // print("Song added to queue: $songName by $artist");
   }
 
   Future<void> togglePlayPause() async {
@@ -162,73 +182,75 @@ class AudioController extends GetxController {
     }
   }
 
-  Future<void> getVideoIdFromSearch(
-      String query, int index, String imgUrl, String trackArtist) async {
+  Future<void> getVideoIdFromSearch(int index) async {
     final yt = YoutubeExplode();
-    if (trackLoadingState.length <= index) {
-      trackLoadingState.addAll(List.generate(
-          index - trackLoadingState.length + 1, (_) => false.obs));
-    }
 
-    // Mark the track as loading
-    trackLoadingState[index].value = true;
-    currentlyPlayingTrackIndex.value = index;
-    // Search YouTube for the query
-    var searchResults = await yt.search.getVideos(query);
+    // Ensure there is a valid index in queueSongs
+    if (queueSongs.isNotEmpty && index < queueSongs.length) {
+      var item = queueSongs[index]; // Fetch the song details from the queue
 
-    // If there are results, get the first video
-    if (searchResults.isNotEmpty) {
-      var firstVideo = searchResults.first;
-      print("Video ID: ${firstVideo.id}"); // Print video ID
-      await playYouTubeAudio('${firstVideo.id}', query, trackArtist, imgUrl);
-      // You can now use this video ID to play the video or extract other details
-    } else {
-      print("No results found.");
+      // Ensure the song details are valid
+      if (item != null && item['songName'] != null && item['artist'] != null) {
+        currentlyPlayingTrackIndex.value = index;
+
+        // Search YouTube for the song
+        var searchResults = await yt.search.search(item['songName']);
+
+        if (searchResults.isNotEmpty) {
+          var firstVideo = searchResults.first;
+          print("Video ID: ${firstVideo.id}"); // Print video ID
+          await playYouTubeAudio('${firstVideo.id}', item['songName'],
+              item['artist'], item['imgUrl'], index);
+
+          // Start tracking playback progress
+          // trackProgressChecker(index);
+        } else {
+          print("No results found for ${item['songName']}.");
+        }
+      }
     }
   }
 
-  // Future<void> playTrack(String query, int index, String imgUrl) async {
-  //   // print(query);
-  //   // Ensure the list can accommodate the requested index
-  //   if (trackLoadingState.length <= index) {
-  //     trackLoadingState.addAll(List.generate(
-  //         index - trackLoadingState.length + 1, (_) => false.obs));
-  //   }
-  //
-  //   // Mark the track as loading
-  //   trackLoadingState[index].value = true;
-  //   currentlyPlayingTrackIndex.value = index;
-  //
-  //   // Replace this with a secure method to manage the API key
-  //   const String apiKey = 'AIzaSyAFxowQED_gJYOP4-FlPYRipg0RQ2RPUYU';
-  //   final String apiUrl =
-  //       'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$query&type=video&key=$apiKey';
-  //
-  //   try {
-  //     final response = await http.get(Uri.parse(apiUrl));
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> data = json.decode(response.body);
-  //       if (data['items'].isNotEmpty) {
-  //         final videoId = data['items'][0]['id']['videoId'];
-  //         final trackTitle = data['items'][0]['snippet']['title'];
-  //         final trackArtist = data['items'][0]['snippet']['channelTitle'];
-  //         await playYouTubeAudio(videoId, trackTitle, trackArtist, imgUrl);
-  //         // await playYouTubeAudio(
-  //         //   videoId,
-  //         // );
-  //       } else {
-  //         print('No YouTube video found for the track.');
-  //       }
-  //     } else {
-  //       print('Failed to search YouTube: ${response.body}');
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching YouTube track: $e');
-  //   } finally {
-  //     // Mark the track as not loading
-  //     trackLoadingState[index].value = false;
-  //   }
-  // }
+  Future<void> playNextTrack(int currentIndex) async {
+    await headlessWebView?.dispose().then(
+      (value) async {
+        print('Next Track');
+        int nextIndex = currentIndex + 1;
+
+        // Check if there's another song in the queue
+        if (nextIndex < queueSongs.length) {
+          await getVideoIdFromSearch(nextIndex);
+        } else {
+          print("End of the queue.");
+        }
+      },
+    );
+  }
+
+  Future<void> playPreviousTrack(int currentIndex) async {
+    await headlessWebView?.dispose().then(
+      (value) async {
+        print('Previous Track');
+        int previousIndex = currentIndex - 1;
+
+        // Check if there's a previous song in the queue
+        if (previousIndex >= 0 && previousIndex < queueSongs.length) {
+          // Update the currently playing index
+          currentIndex = previousIndex;
+
+          // Get the song details from the queue
+          var previousSong = queueSongs[previousIndex];
+
+          if (previousSong != null) {
+            // Play the previous track
+            await getVideoIdFromSearch(previousIndex);
+          }
+        } else {
+          print("No previous track available.");
+        }
+      },
+    );
+  }
 
   String formatTime(double timeInSeconds) {
     int minutes = timeInSeconds ~/ 60; // Integer division for minutes
@@ -236,9 +258,9 @@ class AudioController extends GetxController {
     return "$minutes:${seconds.toString().padLeft(2, '0')}";
   }
 
-  @override
-  void onClose() {
-    // audioPlayer.dispose();
-    super.onClose();
-  }
+  // @override
+  // void onClose() {
+  //   // audioPlayer.dispose();
+  //   super.onClose();
+  // }
 }
