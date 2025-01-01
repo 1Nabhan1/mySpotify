@@ -21,22 +21,29 @@ class PlayerScreen extends StatelessWidget {
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Icon(
-                        CupertinoIcons.chevron_down,
-                        color: audioController.textColor.value,
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => Get.back(),
+                        child: Icon(
+                          CupertinoIcons.chevron_down,
+                          color: audioController.textColor.value,
+                        ),
                       ),
-                    ),
+                      Icon(
+                        CupertinoIcons.ellipsis_vertical,
+                        color: audioController.textColor.value,
+                      )
+                    ],
                   ),
-                ],
+                ),
               ),
               SizedBox(
-                height: 20.h,
+                height: 10.h,
               ),
               PlayerWidgets().playDetails(audioController: audioController),
               PlayerWidgets().controlWidget(
