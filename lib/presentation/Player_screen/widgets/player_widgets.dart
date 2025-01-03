@@ -65,35 +65,35 @@ class PlayerWidgets {
                       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
                       trackHeight: 1),
                   child: Slider(
-                    value: audioController.currentPlayingTime.value,
+                    value: audioController.currentPlayingTime!.value,
                     min: 0.0,
                     inactiveColor:
                         audioController.textColor.value.withOpacity(.1),
                     // Colors.transparent.withOpacity(.5),
-                    max: audioController.totalDuration.value,
+                    max: audioController.totalDuration!.value,
                     secondaryActiveColor: audioController.textColor.value,
                     activeColor: audioController.textColor.value,
                     onChanged: (value) {
                       // Update the slider's value without seeking the audio
-                      audioController.currentPlayingTime.value = value;
+                      audioController.currentPlayingTime!.value = value;
                     },
                     onChangeStart: (value) {
-                      // Optional: Pause the audio while dragging the slider for better performance
-                      audioController.headlessWebView?.webViewController
-                          ?.evaluateJavascript(
-                        source:
-                            "var video = document.querySelector('video'); if (video) video.pause();",
-                      );
+                      // // Optional: Pause the audio while dragging the slider for better performance
+                      // audioController.headlessWebView?.webViewController
+                      //     ?.evaluateJavascript(
+                      //   source:
+                      //       "var video = document.querySelector('video'); if (video) video.pause();",
+                      // );
                     },
                     onChangeEnd: (value) {
                       // Seek the audio only when the user releases the slider
-                      audioController.headlessWebView?.webViewController
-                          ?.evaluateJavascript(
-                        source:
-                            "var video = document.querySelector('video'); if (video) video.currentTime = $value; video.play();",
-                      );
-                      // Resume playback if needed
-                      audioController.isPlaying.value = true;
+                      // audioController.headlessWebView?.webViewController
+                      //     ?.evaluateJavascript(
+                      //   source:
+                      //       "var video = document.querySelector('video'); if (video) video.currentTime = $value; video.play();",
+                      // );
+                      // // Resume playback if needed
+                      // audioController.isPlaying.value = true;
                     },
                   ),
                 ),
@@ -104,13 +104,13 @@ class PlayerWidgets {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      audioController
-                          .formatTime(audioController.currentPlayingTime.value),
+                      audioController.formatTime(
+                          audioController.currentPlayingTime!.value),
                       style: TextStyle(color: audioController.textColor.value),
                     ),
                     Text(
                         audioController
-                            .formatTime(audioController.totalDuration.value),
+                            .formatTime(audioController.totalDuration!.value),
                         style:
                             TextStyle(color: audioController.textColor.value)),
                   ],

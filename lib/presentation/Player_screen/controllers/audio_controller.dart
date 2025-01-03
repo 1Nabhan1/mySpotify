@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
@@ -26,101 +27,81 @@ class AudioController extends GetxController {
   HeadlessInAppWebView? headlessWebView;
   List<dynamic> queueSongs = [].obs;
   RxBool playerLoading = false.obs;
+
+  AudioPlayer _audioPlayer = AudioPlayer();
+
+// Request to keep the app running in the background
+  Future<void> enableBackgroundMode() async {
+    final androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: "Playing Music",
+      notificationText: "Music is playing in the background",
+      // notificationIcon: AndroidResource(name: 'background_icon', defType: 'drawable'),
+    );
+    await FlutterBackground.initialize(androidConfig: androidConfig);
+
+    // Ensure that background mode is enabled
+    bool success = await FlutterBackground.enableBackgroundExecution();
+    if (success) {
+      print("Background mode enabled");
+    } else {
+      print("Failed to enable background mode");
+    }
+  }
+
   Future<void> playYouTubeAudio(String videoId, String title, String artist,
       String img, int currentIndex) async {
-    playerLoading.value = true;
-    await headlessWebView?.dispose();
-    // Create a HeadlessInAppWebView instance
-    headlessWebView = HeadlessInAppWebView(
-      initialUrlRequest: URLRequest(
-        url: WebUri('https://www.youtube.com/watch?v=$videoId'),
-      ),
-      initialSettings: InAppWebViewSettings(
-        mediaPlaybackRequiresUserGesture:
-            false, // Allow autoplay without user interaction
-        allowContentAccess: false, // Disable content access for extra security
-        allowFileAccess: false, // Disable file access
-      ),
-      onWebViewCreated: (controller) {
-        print("WebView Created");
+    // playerLoading.value = true;
 
-        // Attach JavaScript handler for playback status
-        controller.addJavaScriptHandler(
-          handlerName: 'audioPlaying',
-          callback: (args) {
-            if (args.isNotEmpty && args[0] is bool) {
-              isPlaying.value = args[0];
-              print("Audio is playing: ${isPlaying.value}");
-            }
-          },
-        );
-
-        // Attach JavaScript handler for current time and duration
-        controller.addJavaScriptHandler(
-          handlerName: 'audioProgress',
-          callback: (args) {
-            if (args.isNotEmpty && args.length == 2) {
-              final currentTime = args[0];
-              final duration = args[1];
-              print("Current Time: $currentTime, Total Duration: $duration");
-              currentPlayingTime.value = currentTime ?? 0.0;
-              totalDuration.value = duration ?? 0.0;
-              if (totalDuration.value - currentPlayingTime.value < 15) {
-                headlessWebView?.dispose().then(
-                  (value) {
-                    playNextTrack(currentIndex);
-                  },
-                );
-                // Play the next song
-              }
-            }
-          },
-        );
-      },
-      onLoadStop: (controller, url) async {
-        print("Page loaded: $url");
-
-        // Inject JavaScript to autoplay the video and ensure it is not muted
-        await controller.evaluateJavascript(source: """
-        var video = document.querySelector('video');
-        if (video) {
-          var playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.then(() => {
-              console.log("Video is playing");
-              window.flutter_inappwebview.callHandler('audioPlaying', true);
-
-              // Continuously report the playback progress
-              setInterval(() => {
-                var currentTime = video.currentTime; // Current playback time
-                var duration = video.duration; // Total duration
-                window.flutter_inappwebview.callHandler('audioProgress', currentTime, duration);
-              }, 1000); // Update every second
-            }).catch(error => {
-              console.error("Error while trying to play the video:", error);
-              window.flutter_inappwebview.callHandler('audioPlaying', false);
-            });
-          }
-          video.muted = false; // Ensure audio is enabled
-        } else {
-          window.flutter_inappwebview.callHandler('audioPlaying', false);
-        } 
-      """);
-        nowPlayingTitle.value = title;
-        nowPlayingArtist.value = artist;
-        imgPly.value = img;
-        playerLoading.value = false;
-      },
-    );
+    final yt = YoutubeExplode();
 
     try {
-      // Start the Headless WebView
-      await headlessWebView?.run();
-      print("Headless WebView running in background");
+      // Get the video information from YouTube
+      var video = await yt.videos.get(videoId);
+      var streamManifest = await yt.videos.streamsClient.getManifest(videoId);
+
+      // Find the first audio stream (it may have different container/codec types)
+      var audioStream = streamManifest.audioOnly.firstWhere(
+          (s) => s.container.name == 'mp4' || s.container.name == 'webm',
+          orElse: () => throw Exception("No compatible audio stream found"));
+print('audioStream.url.toString()');
+print(audioStream.url.toString());
+      // Play the audio stream
+      await _audioPlayer.setUrl(audioStream.url.toString());
+      isPlaying.value = true;
+      // Update track details
+      nowPlayingTitle.value = title;
+      nowPlayingArtist.value = artist;
+      imgPly.value = img;
+
+      // Track playback progress
+      _audioPlayer.positionStream.listen((position) {
+        currentPlayingTime.value = position.inSeconds.toDouble();
+        // print(position);
+      });
+      _audioPlayer.durationStream.listen((duration) {
+        totalDuration.value = duration?.inSeconds.toDouble() ?? 0.0;
+      });
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          playNextTrack(currentIndex);
+        }
+      });
+      playerLoading.value = false;
+      // Start playback
+      await _audioPlayer.play();
     } catch (e) {
-      print("Error starting Headless WebView: $e");
-      isPlaying.value = false; // Reset to false if there's an error
+      print("Error playing YouTube audio: $e");
+      isPlaying.value = false;
+    } finally {
+      playerLoading.value = false;
     }
+  }
+
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    enableBackgroundMode();
   }
 
   // Add songs to the queue
@@ -134,27 +115,20 @@ class AudioController extends GetxController {
   }
 
   Future<void> togglePlayPause() async {
-    if (headlessWebView != null) {
-      try {
-        await headlessWebView!.webViewController?.evaluateJavascript(source: """
-        var video = document.querySelector('video');
-        if (video) {
-          if (video.paused) {
-            video.play();
-            window.flutter_inappwebview.callHandler('audioPlaying', true);
-            console.log("Playback resumed");
-          } else {
-            video.pause();
-            window.flutter_inappwebview.callHandler('audioPlaying', false);
-            console.log("Playback paused");
-          }
-        }
-      """);
-      } catch (e) {
-        print("Error toggling play/pause: $e");
+    try {
+      if (_audioPlayer.playing) {
+        // If the audio is currently playing, pause it
+        await _audioPlayer.pause();
+        isPlaying.value = false; // Update the play/pause state
+        print("Playback paused");
+      } else {
+        // If the audio is paused, play it
+        await _audioPlayer.play();
+        isPlaying.value = true; // Update the play/pause state
+        print("Playback resumed");
       }
-    } else {
-      print("No Headless WebView instance available to control playback.");
+    } catch (e) {
+      print("Error toggling play/pause: $e");
     }
   }
 
@@ -196,7 +170,9 @@ class AudioController extends GetxController {
         currentlyPlayingTrackIndex.value = index;
 
         // Search YouTube for the song
-        var searchResults = await yt.search.search(item['songName']);
+        var searchResults =
+        // await yt.search.search("${item['songName']}");
+        await yt.search.search("${item['songName']},${item['artist']}");
 
         if (searchResults.isNotEmpty) {
           var firstVideo = searchResults.first;
@@ -215,45 +191,30 @@ class AudioController extends GetxController {
 
   Future<void> playNextTrack(int currentIndex) async {
     playerLoading.value = true;
-    await headlessWebView?.dispose().then(
-      (value) async {
-        print('Next Track');
-        int nextIndex = currentIndex + 1;
+    print('Next Track');
+    int nextIndex = currentIndex + 1;
 
-        // Check if there's another song in the queue
-        if (nextIndex < queueSongs.length) {
-          await getVideoIdFromSearch(nextIndex);
-        } else {
-          print("End of the queue.");
-        }
-      },
-    );
+    // Check if there's another song in the queue
+    if (nextIndex < queueSongs.length) {
+      await getVideoIdFromSearch(nextIndex);
+    } else {
+      print("End of the queue.");
+      playerLoading.value = false;
+    }
   }
 
   Future<void> playPreviousTrack(int currentIndex) async {
     playerLoading.value = true;
-    await headlessWebView?.dispose().then(
-      (value) async {
-        print('Previous Track');
-        int previousIndex = currentIndex - 1;
+    print('Previous Track');
+    int previousIndex = currentIndex - 1;
 
-        // Check if there's a previous song in the queue
-        if (previousIndex >= 0 && previousIndex < queueSongs.length) {
-          // Update the currently playing index
-          currentIndex = previousIndex;
-
-          // Get the song details from the queue
-          var previousSong = queueSongs[previousIndex];
-
-          if (previousSong != null) {
-            // Play the previous track
-            await getVideoIdFromSearch(previousIndex);
-          }
-        } else {
-          print("No previous track available.");
-        }
-      },
-    );
+    // Check if there's another song in the queue
+    if (previousIndex >= 0 && previousIndex < queueSongs.length) {
+      await getVideoIdFromSearch(previousIndex);
+    } else {
+      print("End of the queue.");
+      playerLoading.value = false;
+    }
   }
 
   String formatTime(double timeInSeconds) {

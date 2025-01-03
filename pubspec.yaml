@@ -45,6 +45,8 @@ dependencies:
   flutter_dotenv:
   shimmer:
   palette_generator:
+  flutter_background:
+#  flutter_foreground_plugin:
 
 dev_dependencies:
   flutter_test:

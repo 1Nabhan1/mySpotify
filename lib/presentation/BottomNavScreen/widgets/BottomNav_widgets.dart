@@ -18,7 +18,7 @@ class BottomNavWidgets {
           : GestureDetector(
               onTap: () {
                 // Get.toNamed(PageList.playerScreen);
-                Get.to(
+                Get.to(() =>
                   PlayerScreen(), // Replace with your actual screen widget
                   transition:
                       Transition.downToUp, // Predefined transition from GetX

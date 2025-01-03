@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:label="spotify_prj"
         android:name="${applicationName}"
@@ -35,6 +36,11 @@
             </intent-filter>
 
         </activity>
+        <service
+            android:name="me.carda.awesome_notifications.notifications.services.NotificationService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true"
+            android:exported="false"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
