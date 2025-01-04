@@ -63,8 +63,8 @@ class AudioController extends GetxController {
       var audioStream = streamManifest.audioOnly.firstWhere(
           (s) => s.container.name == 'mp4' || s.container.name == 'webm',
           orElse: () => throw Exception("No compatible audio stream found"));
-print('audioStream.url.toString()');
-print(audioStream.url.toString());
+      print('audioStream.url.toString()');
+      print(audioStream.url.toString());
       // Play the audio stream
       await _audioPlayer.setUrl(audioStream.url.toString());
       isPlaying.value = true;
@@ -171,8 +171,8 @@ print(audioStream.url.toString());
 
         // Search YouTube for the song
         var searchResults =
-        // await yt.search.search("${item['songName']}");
-        await yt.search.search("${item['songName']},${item['artist']}");
+            // await yt.search.search("${item['songName']}");
+            await yt.search.search("${item['songName']},${item['artist']}");
 
         if (searchResults.isNotEmpty) {
           var firstVideo = searchResults.first;
