@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:spotify_prj/presentation/BottomNavScreen/widgets/BottomNav_widgets.dart';
+import 'package:spotify_prj/presentation/Player_screen/controllers/audio_controller.dart';
+import 'package:spotify_prj/presentation/home_screen/widgets/custom_future_builder.dart';
 import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model.dart';
 
+import 'Widgets/song_list_screen_widgets.dart';
 import 'controller/song_list_controller.dart';
 
 class SongListScreen extends StatelessWidget {
@@ -11,59 +16,75 @@ class SongListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SongListController controller = Get.put(SongListController());
+    AudioController audioController = Get.find();
     return Scaffold(
       backgroundColor: Colors.black,
-      body: FutureBuilder<PlaylistTrackResponse?>(
-        future: controller.songList,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final data = snapshot.data;
-
-            return ListView.builder(
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: data!.items.length,
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                final items = data.items[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(
-                      items.track.name,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Text(
-                      items.track.artists
-                          .take(2)
-                          .map((names) => names.name)
-                          .join(','),
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    leading: Image.network(
-                      items.track.album.images[0].url,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(Icons.error_outline);
-                      },
-                    ),
-                  ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SongListScreenWidgets().songDetails(controller),
+            CustomFutureBuilder(
+              future: controller.songList,
+              onSuccess: (p0, p1) {
+                return ListView.builder(
+                  itemCount: p1!.items.length,
+                  physics: BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final data = p1!.items[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                        leading: SizedBox(
+                          width: 60,
+                          child: Image.network(
+                            data.track.album.images![0].url!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.error);
+                            },
+                          ),
+                        ),
+                        title: Text(
+                          data.track.name!,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        subtitle: Text(
+                          data.track.artists
+                              .take(2)
+                              .map((names) => names.name)
+                              .join(','),
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        onTap: () {
+                          // Clear the existing queue if needed
+                          audioController.queueSongs.clear();
+                          // Add the selected song and all subsequent songs to the queue
+                          for (int i = index; i < p1.items!.length; i++) {
+                            final currentItem = p1.items![i];
+                            audioController.addToQueue(
+                              currentItem.track!.name!,
+                              currentItem.track!.album!.artists![0].name!,
+                              currentItem.track!.album!.images![0].url!,
+                            );
+                          }
+                          // Start playback with the first song in the updated queue
+                          audioController.getVideoIdFromSearch(0);
+                        },
+                      ),
+                    );
+                  },
                 );
               },
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            print(snapshot.error);
-            return Center(
-              child: Text('Something Went Wrong'),
-            );
-          } else {
-            return Center(child: Text('No Data'));
-          }
-        },
+            ),
+            SizedBox(
+              height: 40.h,
+            )
+          ],
+        ),
       ),
+      bottomSheet: BottomNavWidgets().musicPlayer(audioController),
     );
   }
 }

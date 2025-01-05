@@ -28,7 +28,7 @@ class AudioController extends GetxController {
   List<dynamic> queueSongs = [].obs;
   RxBool playerLoading = false.obs;
 
-  AudioPlayer _audioPlayer = AudioPlayer();
+  AudioPlayer audioPlayer = AudioPlayer();
 
 // Request to keep the app running in the background
   Future<void> enableBackgroundMode() async {
@@ -66,7 +66,7 @@ class AudioController extends GetxController {
       print('audioStream.url.toString()');
       print(audioStream.url.toString());
       // Play the audio stream
-      await _audioPlayer.setUrl(audioStream.url.toString());
+      await audioPlayer.setUrl(audioStream.url.toString());
       isPlaying.value = true;
       // Update track details
       nowPlayingTitle.value = title;
@@ -74,21 +74,21 @@ class AudioController extends GetxController {
       imgPly.value = img;
 
       // Track playback progress
-      _audioPlayer.positionStream.listen((position) {
+      audioPlayer.positionStream.listen((position) {
         currentPlayingTime.value = position.inSeconds.toDouble();
         // print(position);
       });
-      _audioPlayer.durationStream.listen((duration) {
+      audioPlayer.durationStream.listen((duration) {
         totalDuration.value = duration?.inSeconds.toDouble() ?? 0.0;
       });
-      _audioPlayer.playerStateStream.listen((state) {
+      audioPlayer.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           playNextTrack(currentIndex);
         }
       });
       playerLoading.value = false;
       // Start playback
-      await _audioPlayer.play();
+      await audioPlayer.play();
     } catch (e) {
       print("Error playing YouTube audio: $e");
       isPlaying.value = false;
@@ -116,15 +116,15 @@ class AudioController extends GetxController {
 
   Future<void> togglePlayPause() async {
     try {
-      if (_audioPlayer.playing) {
+      if (audioPlayer.playing) {
         // If the audio is currently playing, pause it
-        await _audioPlayer.pause();
-        isPlaying.value = false; // Update the play/pause state
+        await audioPlayer.pause();
+        isPlaying.value = audioPlayer.playing; // Update the play/pause state
         print("Playback paused");
       } else {
         // If the audio is paused, play it
-        await _audioPlayer.play();
-        isPlaying.value = true; // Update the play/pause state
+        await audioPlayer.play();
+        isPlaying.value = audioPlayer.playing; // Update the play/pause state
         print("Playback resumed");
       }
     } catch (e) {
@@ -133,9 +133,9 @@ class AudioController extends GetxController {
   }
 
   double getLuminance(Color color) {
-    final r = color.red / 255.0;
-    final g = color.green / 255.0;
-    final b = color.blue / 255.0;
+    final r = color.r / 255.0;
+    final g = color.g / 255.0;
+    final b = color.b / 255.0;
 
     // Applying the luminance formula
     final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;

@@ -61,42 +61,32 @@ class PlayerWidgets {
               SizedBox(
                 height: 10,
                 child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
-                      trackHeight: 1),
-                  child: Slider(
-                    value: audioController.currentPlayingTime!.value,
-                    min: 0.0,
-                    inactiveColor:
-                        audioController.textColor.value.withOpacity(.1),
-                    // Colors.transparent.withOpacity(.5),
-                    max: audioController.totalDuration!.value,
-                    secondaryActiveColor: audioController.textColor.value,
-                    activeColor: audioController.textColor.value,
-                    onChanged: (value) {
-                      // Update the slider's value without seeking the audio
-                      audioController.currentPlayingTime!.value = value;
-                    },
-                    onChangeStart: (value) {
-                      // // Optional: Pause the audio while dragging the slider for better performance
-                      // audioController.headlessWebView?.webViewController
-                      //     ?.evaluateJavascript(
-                      //   source:
-                      //       "var video = document.querySelector('video'); if (video) video.pause();",
-                      // );
-                    },
-                    onChangeEnd: (value) {
-                      // Seek the audio only when the user releases the slider
-                      // audioController.headlessWebView?.webViewController
-                      //     ?.evaluateJavascript(
-                      //   source:
-                      //       "var video = document.querySelector('video'); if (video) video.currentTime = $value; video.play();",
-                      // );
-                      // // Resume playback if needed
-                      // audioController.isPlaying.value = true;
-                    },
-                  ),
-                ),
+                    data: SliderTheme.of(context).copyWith(
+                        thumbShape:
+                            RoundSliderThumbShape(enabledThumbRadius: 5),
+                        trackHeight: 1),
+                    child: Slider(
+                      value: audioController.currentPlayingTime.value,
+                      min: 0.0,
+                      max: audioController.totalDuration.value > 0
+                          ? audioController.totalDuration.value
+                          : 1.0, // Prevent max from being 0
+                      inactiveColor:
+                          audioController.textColor.value.withOpacity(0.1),
+                      secondaryActiveColor: audioController.textColor.value,
+                      activeColor: audioController.textColor.value,
+                      onChanged: (value) {
+                        // Update the slider's value without seeking the audio
+                        audioController.currentPlayingTime.value = value;
+                      },
+                      onChangeEnd: (value) async {
+                        // Seek the audio to the selected position
+                        await audioController.audioPlayer
+                            .seek(Duration(seconds: value.toInt()));
+                        // Resume playback after seeking
+                        await audioController.audioPlayer.play();
+                      },
+                    )),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -140,10 +130,8 @@ class PlayerWidgets {
                   : () {
                       if (audioController.isPlaying.value) {
                         audioController.togglePlayPause();
-                        audioController.isPlaying.value = false;
                       } else {
                         audioController.togglePlayPause();
-                        audioController.isPlaying.value = true;
                       }
                     },
               child: CircleAvatar(

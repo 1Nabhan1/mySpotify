@@ -166,8 +166,9 @@ class ApiServices {
       final data = await ApiMethods()
           .get(url: uri, headers: {'Authorization': 'Bearer $token'});
       return PlaylistTrackResponse.fromJson(jsonDecode(data));
-    } catch (e) {
+    } catch (e,s) {
       print(e);
+      print(s);
     }
     return null;
   }

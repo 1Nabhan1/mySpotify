@@ -50,14 +50,12 @@ class Item {
     return Item(
       addedAt: json['added_at'],
       // addedBy: AddedBy.fromJson(json['added_by']),
-      isLocal: json['is_local']?? false,
+      isLocal: json['is_local'] ?? false,
       track: Track.fromJson(json['track']),
       // videoThumbnail: VideoThumbnail.fromJson(json['video_thumbnail']),
     );
   }
 }
-
-
 
 class ExternalUrls {
   final String spotify;
@@ -126,7 +124,7 @@ class Album {
     return Album(
         id: json['id'],
         name: json['name'],
-        releaseDate: json['release_date'],
+        releaseDate: json['release_date'] ?? '',
         uri: Uri.parse(json['uri']),
         artists: (json['artists'] as List)
             .map((artist) => Artist.fromJson(artist))
@@ -155,7 +153,7 @@ class Artist {
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
       id: json['id'],
-      name: json['name'],
+      name: json['name'] ?? '',
       uri: Uri.parse(json['uri']),
       externalUrls: ExternalUrls.fromJson(json['external_urls']),
       href: json['href'],
