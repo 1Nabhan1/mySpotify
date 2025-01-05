@@ -29,6 +29,36 @@ class LibraryScreen extends StatelessWidget {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListTile(
+                  leading: SizedBox(
+                    width: 60,
+                    child: Image.network(
+                      'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da849d25907759522a25b86a3033',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error);
+                      },
+                    ),
+                  ),
+                  title: Text(
+                    'Liked Songs',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onTap: () {
+                    // Apiservices().refreshAccessToken();
+                    Get.toNamed(PageList.songListScreen, arguments: {
+                      'id': '${0}',
+                      'img':
+                          'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da849d25907759522a25b86a3033',
+                      'name': 'Liked Songs',
+                      'isLiked': true
+                    });
+                    print(Constdetails().token);
+                  },
+                ),
+              ),
               CustomFutureBuilder(
                 future: librarycontroller.futurePlaylists,
                 onSuccess: (p0, p1) {
@@ -61,7 +91,8 @@ class LibraryScreen extends StatelessWidget {
                             Get.toNamed(PageList.songListScreen, arguments: {
                               'id': '${data.id}',
                               'img': '${data.images![0].url}',
-                              'name': '${data.name}'
+                              'name': '${data.name}',
+                              'isLiked': false
                             });
                             print(Constdetails().token);
                           },

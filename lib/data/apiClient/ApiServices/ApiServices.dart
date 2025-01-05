@@ -158,15 +158,16 @@ class ApiServices {
 //     return null;
 //   }
 
-  Future<PlaylistTrackResponse?> fetchSongList(String id) async {
+  Future<PlaylistTrackResponse?> fetchSongList(String id, bool isLiked) async {
     final token = Constdetails().token;
-
+    final liked = 'https://api.spotify.com/v1/me/tracks';
     final uri = 'https://api.spotify.com/v1/playlists/${id}/tracks';
     try {
-      final data = await ApiMethods()
-          .get(url: uri, headers: {'Authorization': 'Bearer $token'});
+      final data = await ApiMethods().get(
+          url: isLiked ? liked : uri,
+          headers: {'Authorization': 'Bearer $token'});
       return PlaylistTrackResponse.fromJson(jsonDecode(data));
-    } catch (e,s) {
+    } catch (e, s) {
       print(e);
       print(s);
     }
