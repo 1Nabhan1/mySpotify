@@ -33,46 +33,43 @@ class SongListScreen extends StatelessWidget {
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final data = p1!.items[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListTile(
-                        leading: SizedBox(
-                          width: 60,
-                          child: Image.network(
-                            data.track.album.images![0].url!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.error);
-                            },
-                          ),
+                    return ListTile(
+                      leading: SizedBox(
+                        width: 60,
+                        child: Image.network(
+                          data.track.album.images![0].url!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.error);
+                          },
                         ),
-                        title: Text(
-                          data.track.name!,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        subtitle: Text(
-                          data.track.artists
-                              .take(2)
-                              .map((names) => names.name)
-                              .join(','),
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        onTap: () {
-                          // Clear the existing queue if needed
-                          audioController.queueSongs.clear();
-                          // Add the selected song and all subsequent songs to the queue
-                          for (int i = index; i < p1.items!.length; i++) {
-                            final currentItem = p1.items![i];
-                            audioController.addToQueue(
-                              currentItem.track!.name!,
-                              currentItem.track!.album!.artists![0].name!,
-                              currentItem.track!.album!.images![0].url!,
-                            );
-                          }
-                          // Start playback with the first song in the updated queue
-                          audioController.getVideoIdFromSearch(0);
-                        },
                       ),
+                      title: Text(
+                        data.track.name!,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      subtitle: Text(
+                        data.track.artists
+                            .take(2)
+                            .map((names) => names.name)
+                            .join(','),
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      onTap: () {
+                        // Clear the existing queue if needed
+                        audioController.queueSongs.clear();
+                        // Add the selected song and all subsequent songs to the queue
+                        for (int i = index; i < p1.items!.length; i++) {
+                          final currentItem = p1.items![i];
+                          audioController.addToQueue(
+                            currentItem.track!.name!,
+                            currentItem.track!.album!.artists![0].name!,
+                            currentItem.track!.album!.images![0].url!,
+                          );
+                        }
+                        // Start playback with the first song in the updated queue
+                        audioController.getVideoIdFromSearch(0);
+                      },
                     );
                   },
                 );

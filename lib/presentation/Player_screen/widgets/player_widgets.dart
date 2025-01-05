@@ -130,8 +130,10 @@ class PlayerWidgets {
                   : () {
                       if (audioController.isPlaying.value) {
                         audioController.togglePlayPause();
+                        audioController.isPlaying.value = false;
                       } else {
                         audioController.togglePlayPause();
+                        audioController.isPlaying.value = true;
                       }
                     },
               child: CircleAvatar(

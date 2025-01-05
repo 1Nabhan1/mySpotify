@@ -18,8 +18,9 @@ class BottomNavWidgets {
           : GestureDetector(
               onTap: () {
                 // Get.toNamed(PageList.playerScreen);
-                Get.to(() =>
-                  PlayerScreen(), // Replace with your actual screen widget
+                Get.to(
+                  () =>
+                      PlayerScreen(), // Replace with your actual screen widget
                   transition:
                       Transition.downToUp, // Predefined transition from GetX
                   duration: Duration(milliseconds: 300), // Optional duration
@@ -39,7 +40,7 @@ class BottomNavWidgets {
                             Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: SizedBox(
-                                height: 50,
+                                width: 50,
                                 child: Image.network(
                                   audioController.imgPly.value,
                                   height: 50,
@@ -90,31 +91,46 @@ class BottomNavWidgets {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(
-                                audioController.isPlaying.value
-                                    ? CupertinoIcons.pause_circle
-                                    : CupertinoIcons.play_circle,
-                                color: audioController.textColor.value,
-                              ),
-                              onPressed: () {
-                                if (audioController.isPlaying.value) {
-                                  audioController.togglePlayPause();
-                                  audioController.isPlaying.value = false;
-                                } else {
-                                  audioController.togglePlayPause();
-                                  audioController.isPlaying.value = true;
-                                }
-                              },
+                              icon: audioController.playerLoading.value
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 1,
+                                        color: audioController.textColor.value,
+                                      ),
+                                    )
+                                  : Icon(
+                                      audioController.isPlaying.value
+                                          ? CupertinoIcons.pause_circle
+                                          : CupertinoIcons.play_circle,
+                                      color: audioController.textColor.value,
+                                    ),
+                              onPressed: audioController.playerLoading.value
+                                  ? null
+                                  : () {
+                                      if (audioController.isPlaying.value) {
+                                        audioController.togglePlayPause();
+                                        audioController.isPlaying.value = false;
+                                      } else {
+                                        audioController.togglePlayPause();
+                                        audioController.isPlaying.value = true;
+                                      }
+                                    },
                             ),
                             IconButton(
                               icon: Icon(
                                 CupertinoIcons.forward_end,
                                 color: audioController.textColor.value,
                               ),
-                              onPressed: () {
-                                audioController.playNextTrack(audioController
-                                    .currentlyPlayingTrackIndex.value);
-                              },
+                              onPressed: audioController.playerLoading.value
+                                  ? null
+                                  : () {
+                                      audioController.playNextTrack(
+                                          audioController
+                                              .currentlyPlayingTrackIndex
+                                              .value);
+                                    },
                             ),
                           ],
                         )

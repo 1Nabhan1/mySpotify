@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:spotify_prj/core/constants/ConstDetails.dart';
 import 'package:spotify_prj/core/constants/api_methods.dart';
+import 'package:spotify_prj/data/apiClient/ApiList/Apilist.dart';
 import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_model.dart'
     as libry;
 import 'package:spotify_prj/presentation/home_screen/controller/home_controller.dart';
@@ -26,7 +27,7 @@ class ApiServices {
 
   Future<void> getAccessToken(String authorizationCode, String redirectUri,
       String clientId, String clientSecret) async {
-    final String tokenUrl = 'https://accounts.spotify.com/api/token';
+    final String tokenUrl = ApiList.tokenGen;
 
     final Map<String, String> requestBody = {
       'grant_type': 'authorization_code',
@@ -56,22 +57,9 @@ class ApiServices {
     }
   }
 
-  // Future<userDetails?> fetchUserDetail() async {
-  //   String token = Constdetails().token;
-  //   final url = 'https://api.spotify.com/v1/me';
-  //   try {
-  //     final data = await ApiMethods()
-  //         .get(url: url, headers: {'Authorization': 'Bearer $token'});
-  //     return userDetails.fromJson(jsonDecode(data));
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   return null;
-  // }
-
   Future<Map<String, dynamic>> userData() async {
     String token = Constdetails().token;
-    final url = 'https://api.spotify.com/v1/me';
+    final url = ApiList.user;
     try {
       final data = await ApiMethods()
           .get(url: url, headers: {'Authorization': 'Bearer $token'});
@@ -84,7 +72,7 @@ class ApiServices {
   }
 
   Future<List<libry.Items>> fetchPlaylists() async {
-    final url = 'https://api.spotify.com/v1/me/playlists';
+    final url = ApiList.playList;
     final token = Constdetails().token;
     try {
       final response = await ApiMethods().get(
@@ -110,7 +98,7 @@ class ApiServices {
   }
 
   Future<String?> refreshAccessToken() async {
-    final uri = 'https://accounts.spotify.com/api/token';
+    final uri = ApiList.tokenGen;
     final clientId = Constdetails().clientId;
     final clientSecret = Constdetails().clientSecret;
     final credentials = base64Encode(utf8.encode('$clientId:$clientSecret'));
@@ -160,8 +148,8 @@ class ApiServices {
 
   Future<PlaylistTrackResponse?> fetchSongList(String id, bool isLiked) async {
     final token = Constdetails().token;
-    final liked = 'https://api.spotify.com/v1/me/tracks';
-    final uri = 'https://api.spotify.com/v1/playlists/${id}/tracks';
+    final liked = ApiList.liked;
+    final uri = '${ApiList.baseUrl}/playlists/${id}/tracks';
     try {
       final data = await ApiMethods().get(
           url: isLiked ? liked : uri,
@@ -176,7 +164,7 @@ class ApiServices {
 
   Future<recent_play?> fetchRecentList() async {
     final token = Constdetails().token;
-    String url = 'https://api.spotify.com/v1/me/player/recently-played';
+    String url = ApiList.recent;
     try {
       final data = await ApiMethods()
           .get(url: url, headers: {'Authorization': 'Bearer $token'});
@@ -191,8 +179,7 @@ class ApiServices {
     final token = Constdetails().token;
     try {
       final data = await ApiMethods().get(
-          url: 'https://api.spotify.com/v1/browse/categories',
-          headers: {'Authorization': 'Bearer $token'});
+          url: ApiList.category, headers: {'Authorization': 'Bearer $token'});
       return CategoryModel.fromJson(jsonDecode(data));
     } catch (e) {
       print(e);
@@ -203,7 +190,7 @@ class ApiServices {
   Future<TopTracks?> fetchTopTracks() async {
     try {
       final data = await ApiMethods().get(
-          url: 'https://api.spotify.com/v1/me/top/tracks',
+          url: ApiList.topTracks,
           headers: {'Authorization': 'Bearer ${Constdetails().token}'});
       return TopTracks.fromJson(jsonDecode(data));
     } catch (e) {
@@ -237,3 +224,4 @@ class ApiServices {
     return null;
   }
 }
+// https://api.spotify.com/v1/me/top/artists

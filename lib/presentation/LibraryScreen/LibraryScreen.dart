@@ -20,9 +20,10 @@ class LibraryScreen extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
+          toolbarHeight: 150,
           title: Text(
             'Your Library',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.grey.shade800,
         ),
