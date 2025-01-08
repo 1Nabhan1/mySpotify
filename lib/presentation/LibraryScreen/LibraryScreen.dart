@@ -91,8 +91,7 @@ class LibraryScreen extends StatelessWidget {
                             Get.toNamed(PageList.songListScreen, arguments: {
                               'img': '${data.images![0].url}',
                               'name': '${data.name}',
-                              'uri':
-                                  '${ApiList.baseUrl}/playlists/${data.id}/tracks?limit=60',
+                              'uri': ApiList.libSngList(data.id!),
                               'isArtist': false
                             });
                             print(Constdetails().token);

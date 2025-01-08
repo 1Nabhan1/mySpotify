@@ -30,7 +30,15 @@ class Bottomnavscreen extends StatelessWidget {
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
               BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.search), label: 'Search'),
+                icon: GestureDetector(
+                    onTap: () {
+                      if (bottomnavcontroller.selectedIndex.value == 1) {
+                        audioController.searchNode.requestFocus();
+                      }
+                    },
+                    child: Icon(CupertinoIcons.search)),
+                label: 'Search',
+              ),
               BottomNavigationBarItem(
                   icon: Icon(Icons.my_library_music_outlined), label: 'Library')
             ]),

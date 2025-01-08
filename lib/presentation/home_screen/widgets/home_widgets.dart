@@ -170,16 +170,7 @@ class HomeWidgets {
             itemBuilder: (context, index) {
               final items = p1!.categories!.items![index];
               return GestureDetector(
-                onTap: () {
-                  print(items.id);
-                  // Get.toNamed(PageList.songListScreen, arguments: {
-                  //   'img': '${items.icons![0].url}',
-                  //   'name': '${items.name}',
-                  //   'uri':
-                  //       '${ApiList.baseUrl}/playlists/${items.id}/tracks?limit=60',
-                  //   'isArtist': false
-                  // });
-                },
+                onTap: () {},
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(

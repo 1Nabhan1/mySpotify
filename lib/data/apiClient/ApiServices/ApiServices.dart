@@ -21,6 +21,7 @@ import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model
     as sg_list;
 import 'package:spotify_prj/routes/PageList.dart';
 
+import '../../../presentation/SearchScreen/SearchController/SearchController.dart';
 import '../../../presentation/home_screen/models/album_model.dart';
 import '../../../presentation/home_screen/models/category_model.dart';
 import '../../../presentation/home_screen/models/recent_model.dart';

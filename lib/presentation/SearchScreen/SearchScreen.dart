@@ -21,6 +21,7 @@ class Searchscreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
+                    style: TextStyle(color: Colors.grey),
                     decoration: InputDecoration(
                       labelText: 'Search for a song',
                       border: OutlineInputBorder(),
@@ -28,9 +29,10 @@ class Searchscreen extends StatelessWidget {
                     onChanged: (query) {
                       Future.delayed(
                         Duration(seconds: 1),
-                        () => controller.searchTracks(query),
+                        () => controller.search(query: query),
                       );
                     },
+                    focusNode: audioController.searchNode,
                   ),
                 ),
                 controller.isLoading
@@ -51,7 +53,7 @@ class Searchscreen extends StatelessWidget {
                                     ),
                                     subtitle: Text(track['artists'][0]['name']),
                                     leading: controller.trackLoadingState[index]
-                                        ? CircularProgressIndicator() // Show loading indicator for clicked track
+                                        ? CircularProgressIndicator()
                                         : (track['album']['images'].isNotEmpty
                                             ? Image.network(
                                                 track['album']['images'][0]
@@ -71,14 +73,13 @@ class Searchscreen extends StatelessWidget {
                                             color: Colors.green)
                                         : null,
                                     onTap: () {
-                                      // final String query =
-                                      //     '${track['name']} ${track['artists'][0]['name']}';
-                                      // controller.playTrack(query, index);
-                                      // audioController.getVideoIdFromSearch(
-                                      //     query,
-                                      //     index,
-                                      //     track['album']['images'][0]['url'],
-                                      //     track['artists'][0]['name']);
+                                      audioController.queueSongs.clear();
+                                      audioController.addToQueue(
+                                        track['name'],
+                                        track['artists'][0]['name'],
+                                        track['album']['images'][0]['url'],
+                                      );
+                                      audioController.getVideoIdFromSearch(0);
                                     },
                                   );
                                 },

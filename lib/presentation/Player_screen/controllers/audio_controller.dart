@@ -27,7 +27,7 @@ class AudioController extends GetxController {
   HeadlessInAppWebView? headlessWebView;
   List<dynamic> queueSongs = [].obs;
   RxBool playerLoading = false.obs;
-
+  FocusNode searchNode = FocusNode();
   AudioPlayer audioPlayer = AudioPlayer();
 
 // Request to keep the app running in the background
@@ -198,6 +198,14 @@ class AudioController extends GetxController {
     if (nextIndex < queueSongs.length) {
       await getVideoIdFromSearch(nextIndex);
     } else {
+      Get.snackbar(
+          '',
+          ''
+              'No Track available',
+          borderRadius: 0,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: dominantColor.value,
+          colorText: textColor.value);
       print("End of the queue.");
       playerLoading.value = false;
     }
@@ -212,6 +220,14 @@ class AudioController extends GetxController {
     if (previousIndex >= 0 && previousIndex < queueSongs.length) {
       await getVideoIdFromSearch(previousIndex);
     } else {
+      Get.snackbar(
+          '',
+          ''
+              'No Track available',
+          borderRadius: 0,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: dominantColor.value,
+          colorText: textColor.value);
       print("End of the queue.");
       playerLoading.value = false;
     }
