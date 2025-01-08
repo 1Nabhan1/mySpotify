@@ -5,9 +5,11 @@ class CustomFutureBuilder<T> extends StatelessWidget {
     super.key,
     required this.future,
     required this.onSuccess,
+    required this.waiting,
   });
   final Future<T> future;
   final Widget Function(BuildContext, T) onSuccess;
+  final Widget waiting;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<T>(
@@ -16,9 +18,7 @@ class CustomFutureBuilder<T> extends StatelessWidget {
         if (snapshot.hasData) {
           return onSuccess(context, snapshot.data!);
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: SizedBox.shrink(),
-          );
+          return waiting;
         } else if (snapshot.hasError) {
           return Center(
             child: Text('Somthing Went Wrong'),

@@ -27,15 +27,15 @@ class SongListScreen extends StatelessWidget {
               future: controller.songList,
               onSuccess: (p0, p1) {
                 return ListView.builder(
-                  itemCount: p1!.items.length,
+                  itemCount: p1!.length,
                   physics: BouncingScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    final data = p1!.items[index];
+                    final data = p1![index];
                     return ListTile(
                       leading: SizedBox(
-                        width: 60,
+                        width: 45,
                         child: Image.network(
                           data.track.album.images![0].url!,
                           fit: BoxFit.cover,
@@ -53,14 +53,14 @@ class SongListScreen extends StatelessWidget {
                             .take(2)
                             .map((names) => names.name)
                             .join(','),
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.grey,fontSize: 12),
                       ),
                       onTap: () {
                         // Clear the existing queue if needed
                         audioController.queueSongs.clear();
                         // Add the selected song and all subsequent songs to the queue
-                        for (int i = index; i < p1.items!.length; i++) {
-                          final currentItem = p1.items![i];
+                        for (int i = index; i < p1.length; i++) {
+                          final currentItem = p1[i];
                           audioController.addToQueue(
                             currentItem.track!.name!,
                             currentItem.track!.album!.artists![0].name!,
@@ -74,6 +74,9 @@ class SongListScreen extends StatelessWidget {
                   },
                 );
               },
+              waiting: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
             SizedBox(
               height: 40.h,

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_common/get_reset.dart';
@@ -13,7 +15,8 @@ import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_mo
     as libry;
 import 'package:spotify_prj/presentation/home_screen/controller/home_controller.dart';
 import 'package:spotify_prj/presentation/home_screen/models/new_releases.dart';
-import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model.dart';
+import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model.dart'
+    as sg_list;
 import 'package:spotify_prj/routes/PageList.dart';
 
 import '../../../presentation/home_screen/models/album_model.dart';
@@ -146,20 +149,48 @@ class ApiServices {
 //     return null;
 //   }
 
-  Future<PlaylistTrackResponse?> fetchSongList(String id, bool isLiked) async {
+  // Future<PlaylistTrackResponse?> fetchSongList(String id, bool isLiked) async {
+  //   final token = Constdetails().token;
+  //   final liked = ApiList.liked;
+  //   final uri = '${ApiList.baseUrl}/playlists/${id}/tracks';
+  //   try {
+  //     final data = await ApiMethods().get(
+  //         url: isLiked ? liked : uri,
+  //         headers: {'Authorization': 'Bearer $token'});
+  //     PlaylistTrackResponse list =
+  //         PlaylistTrackResponse.fromJson(jsonDecode(data));
+  //
+  //     return PlaylistTrackResponse.fromJson(jsonDecode(data));
+  //   } catch (e, s) {
+  //     print(e);
+  //     print(s);
+  //   }
+  //   return null;
+  // }
+
+  Future<List<sg_list.Item>> fetchSongList(String id, bool isLiked) async {
     final token = Constdetails().token;
     final liked = ApiList.liked;
-    final uri = '${ApiList.baseUrl}/playlists/${id}/tracks';
+    final uri = '${ApiList.baseUrl}/playlists/${id}/tracks?limit=60';
+    String? nxtUrl = isLiked ? liked : uri;
+    List<dynamic> allItems = [];
     try {
-      final data = await ApiMethods().get(
-          url: isLiked ? liked : uri,
-          headers: {'Authorization': 'Bearer $token'});
-      return PlaylistTrackResponse.fromJson(jsonDecode(data));
+      while (nxtUrl != null) {
+        final response = await ApiMethods()
+            .get(url: nxtUrl, headers: {'Authorization': 'Bearer $token'});
+        final data = jsonDecode(response);
+        final items = data['items'] as List;
+        allItems.addAll(items);
+        nxtUrl = data['next'];
+        print(nxtUrl);
+      }
+
+      return allItems.map((value) => sg_list.Item.fromJson(value)).toList();
     } catch (e, s) {
       print(e);
       print(s);
     }
-    return null;
+    return [];
   }
 
   Future<recent_play?> fetchRecentList() async {
@@ -180,7 +211,9 @@ class ApiServices {
     try {
       final data = await ApiMethods().get(
           url: ApiList.category, headers: {'Authorization': 'Bearer $token'});
-      return CategoryModel.fromJson(jsonDecode(data));
+      CategoryModel categories = CategoryModel.fromJson(jsonDecode(data));
+      categories.categories!.items!.shuffle();
+      return categories;
     } catch (e) {
       print(e);
     }

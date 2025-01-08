@@ -102,6 +102,7 @@ class LibraryScreen extends StatelessWidget {
                     },
                   );
                 },
+                waiting: Center(child: CircularProgressIndicator(),),
               ),
               SizedBox(
                 height: 40.h,

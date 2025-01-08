@@ -156,6 +156,7 @@ class HomeWidgets {
     return SizedBox(
       height: 190.h,
       child: CustomFutureBuilder<cat.CategoryModel?>(
+        waiting: SizedBox(),
         future: controller.futureCategories,
         onSuccess: (p0, p1) {
           return GridView.builder(
@@ -196,6 +197,7 @@ class HomeWidgets {
   Widget recentSection({required HomeController controller}) {
     AudioController audioController = Get.find();
     return CustomFutureBuilder<recent_play?>(
+      waiting: SizedBox(),
       future: controller.futureRecent,
       onSuccess: (p0, p1) {
         return SizedBox(
@@ -248,6 +250,7 @@ class HomeWidgets {
   Widget topTrack({required HomeController controller}) {
     AudioController audioController = Get.find();
     return CustomFutureBuilder<TopTracks?>(
+      waiting: SizedBox(),
       future: controller.futureTopTracks,
       onSuccess: (p0, p1) {
         return SizedBox(
@@ -286,6 +289,7 @@ class HomeWidgets {
 
   Widget newRelease({required HomeController controller}) {
     return CustomFutureBuilder(
+      waiting: SizedBox(),
       future: controller.futureNewRelease,
       onSuccess: (p0, p1) {
         return SizedBox(

@@ -133,9 +133,9 @@ class AudioController extends GetxController {
   }
 
   double getLuminance(Color color) {
-    final r = color.r / 255.0;
-    final g = color.g / 255.0;
-    final b = color.b / 255.0;
+    final r = color.red / 255.0;
+    final g = color.green / 255.0;
+    final b = color.blue / 255.0;
 
     // Applying the luminance formula
     final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;

@@ -4,11 +4,14 @@ import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model
 
 class SongListController extends GetxController {
   final arguments = Get.arguments;
-  late Future<PlaylistTrackResponse?> songList;
+  // late Future<PlaylistTrackResponse?> songList;
+  late Future<List<Item>> songList;
+
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    songList = ApiServices().fetchSongList(arguments['id'],arguments['isLiked']);
+    songList =
+        ApiServices().fetchSongList(arguments['id'], arguments['isLiked']);
   }
 }
