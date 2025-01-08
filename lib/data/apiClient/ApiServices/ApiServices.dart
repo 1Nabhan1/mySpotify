@@ -15,6 +15,8 @@ import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_mo
     as libry;
 import 'package:spotify_prj/presentation/home_screen/controller/home_controller.dart';
 import 'package:spotify_prj/presentation/home_screen/models/new_releases.dart';
+import 'package:spotify_prj/presentation/home_screen/models/top_artist.dart';
+import 'package:spotify_prj/presentation/song_list_screen/models/artist_song_list.dart';
 import 'package:spotify_prj/presentation/song_list_screen/models/song_list_model.dart'
     as sg_list;
 import 'package:spotify_prj/routes/PageList.dart';
@@ -168,23 +170,49 @@ class ApiServices {
   //   return null;
   // }
 
-  Future<List<sg_list.Item>> fetchSongList(String id, bool isLiked) async {
+  Future<ArtistSongs?> fetchArtistSongList(String url) async {
     final token = Constdetails().token;
-    final liked = ApiList.liked;
-    final uri = '${ApiList.baseUrl}/playlists/${id}/tracks?limit=60';
-    String? nxtUrl = isLiked ? liked : uri;
+
+    try {
+      final data = await ApiMethods()
+          .get(url: url, headers: {'Authorization': 'Bearer $token'});
+      return ArtistSongs.fromJson(jsonDecode(data));
+    } catch (e, s) {
+      print(e);
+      print(s);
+    }
+    return null;
+  }
+
+  Future<TopArtist?> fetchArtists() async {
+    final url = 'https://api.spotify.com/v1/me/top/artists';
+    final token = Constdetails().token;
+
+    try {
+      final data = await ApiMethods()
+          .get(url: url, headers: {'Authorization': 'Bearer $token'});
+      return TopArtist.fromJson(jsonDecode(data));
+    } catch (e, s) {
+      print(e);
+      print(s);
+    }
+    return null;
+  }
+
+  Future<List<sg_list.Item>> fetchSongList({required String? uri}) async {
+    print(uri);
+    final token = Constdetails().token;
     List<dynamic> allItems = [];
     try {
-      while (nxtUrl != null) {
+      while (uri != null) {
         final response = await ApiMethods()
-            .get(url: nxtUrl, headers: {'Authorization': 'Bearer $token'});
+            .get(url: uri, headers: {'Authorization': 'Bearer $token'});
         final data = jsonDecode(response);
         final items = data['items'] as List;
         allItems.addAll(items);
-        nxtUrl = data['next'];
-        print(nxtUrl);
+        uri = data['next'];
+        // print(nxtUrl);
       }
-
       return allItems.map((value) => sg_list.Item.fromJson(value)).toList();
     } catch (e, s) {
       print(e);

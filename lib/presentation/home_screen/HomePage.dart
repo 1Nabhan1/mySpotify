@@ -25,7 +25,9 @@ class Homepage extends StatelessWidget {
             children: [
               // HomeWidgets().customAppbar(controller: controller),
               HomeWidgets().categorised(controller: controller),
+
               HomeWidgets().recentSection(controller: controller),
+              HomeWidgets().topArtists(controller: controller),
               HomeWidgets().topTrack(controller: controller),
               HomeWidgets().newRelease(controller: controller),
               // HomeWidgets().albums(controller: controller),

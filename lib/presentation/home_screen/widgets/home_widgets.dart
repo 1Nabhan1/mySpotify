@@ -10,6 +10,7 @@ import 'package:spotify_prj/presentation/home_screen/widgets/custom_container.da
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_future_builder.dart';
 import 'package:spotify_prj/routes/PageList.dart';
 
+import '../../../data/apiClient/ApiList/Apilist.dart';
 import '../../Player_screen/controllers/audio_controller.dart';
 import '../controller/home_controller.dart';
 import '../models/album_model.dart';
@@ -168,21 +169,34 @@ class HomeWidgets {
                 crossAxisCount: 2, mainAxisExtent: 60.h),
             itemBuilder: (context, index) {
               final items = p1!.categories!.items![index];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: NetworkImage(items.icons![0].url ??
-                              'https://i.scdn.co/image/ab6761610000e5eb2ac87a070797b92eb8967767'),
-                          opacity: .5,
-                          fit: BoxFit.cover)),
-                  child: Center(
-                    child: Text(
-                      items.name!,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade300),
+              return GestureDetector(
+                onTap: () {
+                  print(items.id);
+                  // Get.toNamed(PageList.songListScreen, arguments: {
+                  //   'img': '${items.icons![0].url}',
+                  //   'name': '${items.name}',
+                  //   'uri':
+                  //       '${ApiList.baseUrl}/playlists/${items.id}/tracks?limit=60',
+                  //   'isArtist': false
+                  // });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage(
+                              items.icons![0].url!,
+                            ),
+                            opacity: .5,
+                            fit: BoxFit.cover)),
+                    child: Center(
+                      child: Text(
+                        items.name!,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade300),
+                      ),
                     ),
                   ),
                 ),
@@ -236,6 +250,49 @@ class HomeWidgets {
                       child: CustomContainer(
                           imgUrl: items.track!.album!.images![0].url!,
                           txt: items.track!.name!),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget topArtists({required HomeController controller}) {
+    return CustomFutureBuilder(
+      waiting: SizedBox(),
+      future: controller.futureArtists,
+      onSuccess: (p0, p1) {
+        return SizedBox(
+          height: 230.h,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeWidgets().customText(txt: 'Artists'),
+              SizedBox(
+                height: 200.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: p1!.items!.length,
+                  physics: BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final items = p1.items![index];
+                    return CustomContainer(
+                      onTap: () {
+                        Get.toNamed(PageList.songListScreen, arguments: {
+                          'img': '${items.images![0].url}',
+                          'name': '${items.name}',
+                          'uri':
+                              'https://api.spotify.com/v1/artists/${items.id}/top-tracks',
+                          'isArtist': true
+                        });
+                      },
+                      imgUrl: items.images![0].url!,
+                      txt: items.name!,
                     );
                   },
                 ),

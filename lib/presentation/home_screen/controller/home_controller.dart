@@ -5,6 +5,7 @@ import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 import 'package:spotify_prj/presentation/home_screen/models/album_model.dart';
 import 'package:spotify_prj/presentation/home_screen/models/category_model.dart';
 import 'package:spotify_prj/presentation/home_screen/models/new_releases.dart';
+import 'package:spotify_prj/presentation/home_screen/models/top_artist.dart';
 import 'package:spotify_prj/presentation/home_screen/models/user_details_model.dart';
 
 import '../../LibraryScreen/Model/library_playlist_model.dart';
@@ -17,6 +18,7 @@ class HomeController extends GetxController {
   late Future<TopTracks?> futureTopTracks;
   late Future<AlbumList?> futureAlbumList;
   late Future<NewReleases?> futureNewRelease;
+  late Future<TopArtist?> futureArtists;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   late InAppWebViewController webViewController;
   RxMap userData = {}.obs;
@@ -31,6 +33,7 @@ class HomeController extends GetxController {
     futureTopTracks = ApiServices().fetchTopTracks();
     futureAlbumList = ApiServices().fetchAlbums();
     futureNewRelease = ApiServices().fetchNewRelease();
+    futureArtists = ApiServices().fetchArtists();
   }
 
   void fetchUsrDetails() async {

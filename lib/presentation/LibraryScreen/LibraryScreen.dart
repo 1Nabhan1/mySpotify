@@ -9,6 +9,7 @@ import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_mo
 import 'package:spotify_prj/presentation/home_screen/widgets/custom_future_builder.dart';
 import 'package:spotify_prj/routes/PageList.dart';
 
+import '../../data/apiClient/ApiList/Apilist.dart';
 import '../song_list_screen/song_list_screen.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -48,13 +49,12 @@ class LibraryScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey),
                   ),
                   onTap: () {
-                    // Apiservices().refreshAccessToken();
                     Get.toNamed(PageList.songListScreen, arguments: {
-                      'id': '${0}',
                       'img':
                           'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da849d25907759522a25b86a3033',
                       'name': 'Liked Songs',
-                      'isLiked': true
+                      'uri': ApiList.liked,
+                      'isArtist': false
                     });
                     print(Constdetails().token);
                   },
@@ -88,12 +88,12 @@ class LibraryScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.grey),
                           ),
                           onTap: () {
-                            // Apiservices().refreshAccessToken();
                             Get.toNamed(PageList.songListScreen, arguments: {
-                              'id': '${data.id}',
                               'img': '${data.images![0].url}',
                               'name': '${data.name}',
-                              'isLiked': false
+                              'uri':
+                                  '${ApiList.baseUrl}/playlists/${data.id}/tracks?limit=60',
+                              'isArtist': false
                             });
                             print(Constdetails().token);
                           },
@@ -102,7 +102,9 @@ class LibraryScreen extends StatelessWidget {
                     },
                   );
                 },
-                waiting: Center(child: CircularProgressIndicator(),),
+                waiting: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
               SizedBox(
                 height: 40.h,
