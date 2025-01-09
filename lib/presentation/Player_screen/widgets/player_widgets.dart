@@ -113,12 +113,10 @@ class PlayerWidgets {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: audioController.playerLoading.value
-                  ? null
-                  : () {
-                      audioController.playPreviousTrack(
-                          audioController.currentlyPlayingTrackIndex.value);
-                    },
+              onTap: () {
+                audioController.playPreviousTrack(
+                    audioController.currentlyPlayingTrackIndex.value);
+              },
               child: Icon(
                 CupertinoIcons.backward_end,
                 color: audioController.textColor.value,
@@ -128,13 +126,15 @@ class PlayerWidgets {
               onTap: audioController.playerLoading.value
                   ? null
                   : () {
-                      if (audioController.isPlaying.value) {
-                        audioController.togglePlayPause();
-                        audioController.isPlaying.value = false;
-                      } else {
-                        audioController.togglePlayPause();
-                        audioController.isPlaying.value = true;
-                      }
+                      audioController.togglePlayPause();
+                      // print(audioController.isPlaying.value);
+                      // if (audioController.isPlaying.value) {
+                      //   audioController.audioPlayer.pause();
+                      //   audioController.isPlaying.value = false;
+                      // } else {
+                      //   audioController.audioPlayer.play();
+                      //   audioController.isPlaying.value = true;
+                      // }
                     },
               child: CircleAvatar(
                 backgroundColor: audioController.textColor.value,
@@ -153,12 +153,10 @@ class PlayerWidgets {
               ),
             ),
             GestureDetector(
-              onTap: audioController.playerLoading.value
-                  ? null
-                  : () {
-                      audioController.playNextTrack(
-                          audioController.currentlyPlayingTrackIndex.value);
-                    },
+              onTap: () {
+                audioController.playNextTrack(
+                    audioController.currentlyPlayingTrackIndex.value);
+              },
               child: Icon(
                 CupertinoIcons.forward_end,
                 color: audioController.textColor.value,

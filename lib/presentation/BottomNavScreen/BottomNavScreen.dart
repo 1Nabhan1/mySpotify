@@ -44,6 +44,7 @@ class Bottomnavscreen extends StatelessWidget {
             ]),
       ),
       bottomSheet: BottomSheet(
+        enableDrag: false,
         backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         onClosing: () {},

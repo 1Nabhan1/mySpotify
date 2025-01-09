@@ -19,7 +19,7 @@ class AudioController extends GetxController {
   var isPlaying = false.obs;
   var imgPly = ''.obs;
   // final AudioPlayer audioPlayer = AudioPlayer();
-  var dominantColor = Colors.transparent.obs;
+  var dominantColor = Colors.black.obs;
   var textColor = Colors.white.obs;
   final webViewController = Rx<InAppWebViewController?>(null);
   RxDouble currentPlayingTime = 0.0.obs;
@@ -50,11 +50,12 @@ class AudioController extends GetxController {
 
   Future<void> playYouTubeAudio(String videoId, String title, String artist,
       String img, int currentIndex) async {
-    // playerLoading.value = true;
-
+    playerLoading.value = true;
     final yt = YoutubeExplode();
 
     try {
+      await audioPlayer.pause();
+
       // Get the video information from YouTube
       var video = await yt.videos.get(videoId);
       var streamManifest = await yt.videos.streamsClient.getManifest(videoId);
@@ -63,16 +64,15 @@ class AudioController extends GetxController {
       var audioStream = streamManifest.audioOnly.firstWhere(
           (s) => s.container.name == 'mp4' || s.container.name == 'webm',
           orElse: () => throw Exception("No compatible audio stream found"));
-      print('audioStream.url.toString()');
-      print(audioStream.url.toString());
+
       // Play the audio stream
+
       await audioPlayer.setUrl(audioStream.url.toString());
       isPlaying.value = true;
       // Update track details
       nowPlayingTitle.value = title;
       nowPlayingArtist.value = artist;
       imgPly.value = img;
-
       // Track playback progress
       audioPlayer.positionStream.listen((position) {
         currentPlayingTime.value = position.inSeconds.toDouble();
@@ -114,21 +114,13 @@ class AudioController extends GetxController {
     // print("Song added to queue: $songName by $artist");
   }
 
-  Future<void> togglePlayPause() async {
-    try {
-      if (audioPlayer.playing) {
-        // If the audio is currently playing, pause it
-        await audioPlayer.pause();
-        isPlaying.value = audioPlayer.playing; // Update the play/pause state
-        print("Playback paused");
-      } else {
-        // If the audio is paused, play it
-        await audioPlayer.play();
-        isPlaying.value = audioPlayer.playing; // Update the play/pause state
-        print("Playback resumed");
-      }
-    } catch (e) {
-      print("Error toggling play/pause: $e");
+  void togglePlayPause() {
+    if (isPlaying.value) {
+      audioPlayer.pause();
+      isPlaying.value = false;
+    } else {
+      audioPlayer.play();
+      isPlaying.value = true;
     }
   }
 
@@ -142,14 +134,35 @@ class AudioController extends GetxController {
     return luminance;
   }
 
+  Color ensureDarkColor(Color color, {double threshold = 0.5}) {
+    final luminance = getLuminance(color);
+    if (luminance > threshold) {
+      // Reduce brightness to make the color darker
+      final darkerColor = darkenColor(color, factor: 0.5);
+      return darkerColor;
+    }
+    return color;
+  }
+
+  Color darkenColor(Color color, {double factor = 0.2}) {
+    assert(factor >= 0 && factor <= 1, "Factor must be between 0 and 1");
+    return Color.fromARGB(
+      color.alpha,
+      (color.red * (1 - factor)).toInt(),
+      (color.green * (1 - factor)).toInt(),
+      (color.blue * (1 - factor)).toInt(),
+    );
+  }
+
   Future<void> updateDominantColor(String imageUrl) async {
     try {
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
         NetworkImage(imageUrl),
       );
       // Set the dominant color (fallback to transparent if null)
-      dominantColor.value =
+      Color extractedColor =
           paletteGenerator.dominantColor?.color ?? Colors.transparent;
+      dominantColor.value = ensureDarkColor(extractedColor);
       double luminance = getLuminance(dominantColor.value);
       textColor.value = luminance < 0.5 ? Colors.white : Colors.black;
     } catch (e) {
@@ -191,6 +204,7 @@ class AudioController extends GetxController {
 
   Future<void> playNextTrack(int currentIndex) async {
     playerLoading.value = true;
+    audioPlayer.pause();
     print('Next Track');
     int nextIndex = currentIndex + 1;
 
@@ -198,10 +212,7 @@ class AudioController extends GetxController {
     if (nextIndex < queueSongs.length) {
       await getVideoIdFromSearch(nextIndex);
     } else {
-      Get.snackbar(
-          '',
-          ''
-              'No Track available',
+      Get.snackbar('', 'No Track available',
           borderRadius: 0,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: dominantColor.value,
@@ -213,6 +224,7 @@ class AudioController extends GetxController {
 
   Future<void> playPreviousTrack(int currentIndex) async {
     playerLoading.value = true;
+    audioPlayer.pause();
     print('Previous Track');
     int previousIndex = currentIndex - 1;
 
@@ -220,10 +232,7 @@ class AudioController extends GetxController {
     if (previousIndex >= 0 && previousIndex < queueSongs.length) {
       await getVideoIdFromSearch(previousIndex);
     } else {
-      Get.snackbar(
-          '',
-          ''
-              'No Track available',
+      Get.snackbar('', 'No Track available',
           borderRadius: 0,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: dominantColor.value,

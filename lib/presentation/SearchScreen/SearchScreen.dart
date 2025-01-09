@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spotify_prj/data/apiClient/ApiList/Apilist.dart';
+import 'package:spotify_prj/data/apiClient/ApiServices/ApiServices.dart';
 
 import '../Player_screen/controllers/audio_controller.dart';
 import 'SearchController/SearchController.dart';
@@ -73,6 +75,7 @@ class Searchscreen extends StatelessWidget {
                                             color: Colors.green)
                                         : null,
                                     onTap: () {
+                                      // print(audioController.queueSongs);
                                       audioController.queueSongs.clear();
                                       audioController.addToQueue(
                                         track['name'],
@@ -80,6 +83,9 @@ class Searchscreen extends StatelessWidget {
                                         track['album']['images'][0]['url'],
                                       );
                                       audioController.getVideoIdFromSearch(0);
+                                      ApiServices().searchSimilarTracks(
+                                        track['name'],
+                                      );
                                     },
                                   );
                                 },

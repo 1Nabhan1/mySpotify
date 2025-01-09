@@ -13,6 +13,7 @@ import 'package:spotify_prj/core/constants/api_methods.dart';
 import 'package:spotify_prj/data/apiClient/ApiList/Apilist.dart';
 import 'package:spotify_prj/presentation/LibraryScreen/Model/library_playlist_model.dart'
     as libry;
+import 'package:spotify_prj/presentation/Player_screen/controllers/audio_controller.dart';
 import 'package:spotify_prj/presentation/home_screen/controller/home_controller.dart';
 import 'package:spotify_prj/presentation/home_screen/models/new_releases.dart';
 import 'package:spotify_prj/presentation/home_screen/models/top_artist.dart';
@@ -126,31 +127,32 @@ class ApiServices {
   }
 
 // // Search for similar tracks using the artist and track name
-//   Future<List<Map<String, dynamic>>?> searchSimilarTracks(
-//       String trackName, String artist) async {
-//     final token = Constdetails().token;
-//     try {
-//       final response = await ApiMethods().get(
-//           url:
-//               'https://api.spotify.com/v1/search?q=$trackName+artist:$artist&type=track&limit=10',
-//           headers: {'Authorization': 'Bearer $token'});
-//       final data = jsonDecode(response);
-//       List<Map<String, dynamic>> tracks = [];
-//       for (var track in data['tracks']['items']) {
-//         tracks.add({
-//           'name': track['name'],
-//           'artist': track['artists'][0]['name'],
-//           'id': track['id'],
-//           'uri': track['uri'],
-//         });
-//       }
-//       return tracks;
-//     } catch (e) {
-//       print(e);
-//     }
-//
-//     return null;
-//   }
+  Future<List<Map<String, dynamic>>?> searchSimilarTracks(
+      String trackName) async {
+    AudioController audioController = Get.find();
+    final token = Constdetails().token;
+    try {
+      final response = await ApiMethods().get(
+          url:
+              'https://api.spotify.com/v1/search?q=$trackName&type=track&limit=50',
+          headers: {'Authorization': 'Bearer $token'});
+      final data = jsonDecode(response);
+      List tracks = data['tracks']['items'];
+      tracks.shuffle();
+      for (var track in tracks) {
+        audioController.queueSongs.add({
+          'songName': track['name'],
+          'artist': track['artists'][0]['name'],
+          'imgUrl': track['album']['images'][0]['url'],
+        });
+      }
+      return [];
+    } catch (e) {
+      print(e);
+    }
+
+    return null;
+  }
 
   // Future<PlaylistTrackResponse?> fetchSongList(String id, bool isLiked) async {
   //   final token = Constdetails().token;

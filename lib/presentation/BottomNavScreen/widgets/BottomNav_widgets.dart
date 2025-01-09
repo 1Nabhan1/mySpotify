@@ -109,13 +109,14 @@ class BottomNavWidgets {
                               onPressed: audioController.playerLoading.value
                                   ? null
                                   : () {
-                                      if (audioController.isPlaying.value) {
-                                        audioController.togglePlayPause();
-                                        audioController.isPlaying.value = false;
-                                      } else {
-                                        audioController.togglePlayPause();
-                                        audioController.isPlaying.value = true;
-                                      }
+                                      audioController.togglePlayPause();
+                                      // if (audioController.isPlaying.value) {
+                                      //   audioController.audioPlayer.pause();
+                                      //   audioController.isPlaying.value = false;
+                                      // } else {
+                                      //   audioController.audioPlayer.play();
+                                      //   audioController.isPlaying.value = true;
+                                      // }
                                     },
                             ),
                             IconButton(
