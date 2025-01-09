@@ -54,9 +54,8 @@ class Searchscreen extends StatelessWidget {
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     subtitle: Text(track['artists'][0]['name']),
-                                    leading: controller.trackLoadingState[index]
-                                        ? CircularProgressIndicator()
-                                        : (track['album']['images'].isNotEmpty
+                                    leading:
+                                        (track['album']['images'].isNotEmpty
                                             ? Image.network(
                                                 track['album']['images'][0]
                                                     ['url'],
@@ -75,7 +74,8 @@ class Searchscreen extends StatelessWidget {
                                             color: Colors.green)
                                         : null,
                                     onTap: () {
-                                      // print(audioController.queueSongs);
+                                      controller.trackLoadingState[index] =
+                                          true;
                                       audioController.queueSongs.clear();
                                       audioController.addToQueue(
                                         track['name'],

@@ -16,7 +16,6 @@ class Searchcontroller extends GetxController {
   String? nowPlayingArtist;
   bool isPlaying = false;
   int? currentlyPlayingTrackIndex;
-  List<bool> trackLoadingState = [];
   final AudioPlayer audioPlayer = AudioPlayer();
 
   @override
@@ -38,7 +37,7 @@ class Searchcontroller extends GetxController {
       );
       final data = jsonDecode(response);
       searchController.searchResults = data['tracks']['items'];
-      trackLoadingState = List<bool>.filled(searchResults.length, false);
+      // trackLoadingState = List<bool>.filled(searchResults.length, false);
       searchController.isLoading = false;
       update();
     } catch (e, s) {
